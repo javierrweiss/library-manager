@@ -56,4 +56,8 @@
 
 (comment
   (go)
-  (reset))
+  (reset)
+  (migratus.core/create
+   (:db.sql/migrations state/system)
+   "add-guestbook-table")
+  )

@@ -83,7 +83,7 @@
            :prod {}} 
 
  :db.sql/connection
- #profile {:dev  {:jdbc-url "jdbc:postgresql://localhost/library-manager?user=library-manager&password=library-manager"}
+ #profile {:dev  {:jdbc-url "postgresql://javierweiss:vGI_dfkJrZV-2qxYiTfmNg@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/referencias_bibliograficas?sslmode=verify-full&options=--cluster%3Dpicky-beagle-6574"}
            :test {}
            :prod {:jdbc-url   #env JDBC_URL
                   :init-size  1
