@@ -76,4 +76,12 @@
                              :usuarios/nombre "Leonardo Blanco"
                              :usuarios/cuenta "leoblanco"
                              :usuarios/clave "El leo!! 2004"})
+  
+  (consulta :obtener-por-id {:table "usuarios"
+                             :id #uuid "1a9bc41a-3990-4d6e-9025-4c21869be868"})
+  
+  (consulta :borrar-por-id! {:table "usuarios"
+                             :id #uuid "1a9bc41a-3990-4d6e-9025-4c21869be868"})
+  
+  (consulta :obtener-todo {:table "usuarios"})
   )
