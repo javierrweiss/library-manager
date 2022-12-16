@@ -57,7 +57,23 @@
 (comment
   (go)
   (reset)
-  (migratus.core/create
-   (:db.sql/migrations state/system)
-   "add-guestbook-table")
+  ;;Crear las tablas en el orden correcto y sin que que solape el timestamp
+  (doseq [tabla ["usuarios-table"
+                 "autores-table"
+                 "referencias-table"
+                 "publicaciones-table"
+                 "citas-table"
+                 "comentarios-table"
+                 "colecciones-table"
+                 "bibliotecas-table"
+                 "biblioteca-items-table"
+                 "coleccion-items-table"]]
+    (migratus.core/create (:db.sql/migrations state/system) tabla)
+    (Thread/sleep 1000))
+  (def consulta (:db.sql/query-fn state/system)) 
+  
+  (consulta :crear-usuario! {:usuarios/correo "leonardoblanco@gmail.com" 
+                             :usuarios/nombre "Leonardo Blanco"
+                             :usuarios/cuenta "leoblanco"
+                             :usuarios/clave "El leo!! 2004"})
   )
