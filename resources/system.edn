@@ -69,7 +69,7 @@
 
  ;; https://docs.xtdb.com/administration/configuring/
  :db.xtdb/node
- #profile {:dev {:xtdb.http-server/server {:port 3100}
+ #profile {:dev {:xtdb.http-server/server {:port 3200}
                  :xtdb/tx-log         {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
                                                   :db-dir      "data/dev/tx-log"
                                                   :sync?       true}}
@@ -83,7 +83,8 @@
            :prod {}} 
 
  :db.sql/connection
- #profile {:dev  {:jdbc-url "postgresql://javierweiss:vGI_dfkJrZV-2qxYiTfmNg@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/referencias_bibliograficas?sslmode=verify-full&options=--cluster%3Dpicky-beagle-6574"}
+ #profile {:dev  {:jdbc-url "postgresql://javierweiss:vGI_dfkJrZV-2qxYiTfmNg@picky-beagle-6574.7tt.cockroachlabs.cloud:26257/referencias_bibliograficas?sslmode=verify-full" 
+                  #_"postgresql://javierweiss:vGI_dfkJrZV-2qxYiTfmNg@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/referencias_bibliograficas?sslmode=verify-full&options=--cluster%3Dpicky-beagle-6574"}
            :test {}
            :prod {:jdbc-url   #env JDBC_URL
                   :init-size  1
