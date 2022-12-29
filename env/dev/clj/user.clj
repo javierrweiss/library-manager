@@ -1,7 +1,7 @@
 (ns user
   "Userspace functions you can run by default in your local REPL."
   (:require
-    [clojure.pprint]
+    [/home/jrivero/library-manager/env/dev/cljclojure.pprint]
     [clojure.spec.alpha :as s]
     [clojure.tools.namespace.repl :as repl]
     [criterium.core :as c]                                  ;; benchmarking
@@ -73,7 +73,7 @@
     (Thread/sleep 1000))
 
   ;;No necesitaba crearla, ya estaba
-  (def consulta (:db.sql/query-fn state/system))
+  (def consulta (:db.sql/query-fn state/system)) 
 
   (consulta :crear-usuario! {:usuarios/correo "leonardoblanco@gmail.com"
                              :usuarios/nombre "Leonardo Blanco"
@@ -87,10 +87,66 @@
                              :id #uuid "1a9bc41a-3990-4d6e-9025-4c21869be868"})
 
   (consulta :obtener-todo {:table "usuarios"})
+  (consulta :obtener-todo {:table "bibliotecas"})
+  (consulta :obtener-todo {:table "biblioteca_items"}) 
+  (consulta :obtener-todo {:table "autores"})
+  (consulta :obtener-todo {:table "comentarios"})
+  (consulta :obtener-todo {:table "referencias"})
+  
 
   (consulta :crear-autor! {:autores/nombres "Reinhart"
                            :autores/apellidos "Koselleck"})
   
-  (consulta :crear-cita! {:citas/usuario #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b"})
+  (consulta :crear-autor! {:autores/nombres "Leonhard"
+                           :autores/apellidos "Bech"})
+  
+  (consulta :crear-referencia! {:referencia/autores #uuid "961469a7-ff35-47a7-b136-9a807a7666a9"
+                                :referencia/titulo "Cosas veredes"
+                                :referencia/ano "1999"
+                                :referencia/editorial "El Bueno"
+                                :referencia/ciudad "Berlin"
+                                :referencia/tipo_publicacion "Libro"
+                                :referencia/volumen nil
+                                :referencia/nombre_libro nil
+                                :referencia/nombre_revista nil })
+  
+  (consulta :crear-cita! {:citas/usuario #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b"
+                          :citas/referencia #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809"
+                          :citas/paginas "12-24"
+                          :citas/cita "Esta es una cita muy interesante"})
+  
+  (consulta :crear-comentario! {:comentarios/comentario "Este es un comentario muy concienzudo"
+                                :comentarios/paginas "12-34"
+                                :comentarios/palabras_clave "a b c d e"
+                                :comentarios/referencia #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809"
+                                :comentarios/usuario #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b"})
+  
+  (consulta :crear-coleccion! {:colecciones/nombre_coll "Buenas lecturas"})
+  
+  (consulta :crear-item-coleccion! {:coleccion_items/coleccion #uuid "20a13609-669c-4179-9429-f54f1a571b06"
+                                    :coleccion_items/referencia #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809"})
+  
+  (consulta :crear-biblioteca! {:bibliotecas/nombre_biblioteca "Gran biblioteca"
+                                :bibliotecas/usuario #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b"})
+  
+  (consulta :crear-item-biblioteca! {:biblioteca_items/biblioteca #uuid "1ff6d88e-0c1c-4b0f-873a-446717d7fbc9"
+                                     :biblioteca_items/coleccion #uuid "20a13609-669c-4179-9429-f54f1a571b06"})
+  
+  (consulta :obtener-colecciones-por-usuario {:bibliotecas/usuario #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b"
+                                              :bibliotecas/id #uuid "1ff6d88e-0c1c-4b0f-873a-446717d7fbc9"}) ;;revisar
+  
+  (consulta :obtener-todo {:table "colecciones"})
+  
+  (consulta :obtener-todo {:table "coleccion_items"})
+  
+  (consulta :obtener-todo {:table "bibliotecas"})
+  
+  (consulta :obtener-referencias-por-coleccion {:colecciones/nombre_coll "Buenas lecturas"}) ;;revisar
+  
+  (consulta :obtener-citas-por-referencia-id {:citas/referencia #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809"}) ;; revisar
+   
+  :bibliotecas/colecciones #uuid "20a13609-669c-4179-9429-f54f1a571b06"
+  
+  (consulta :obtener-todo {:table "citas"})
   
   )

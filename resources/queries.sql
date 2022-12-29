@@ -22,7 +22,7 @@ RETURNING id;
 
 -- :name obtener-autores-por-referencia :? :n
 -- :doc Obtiene los autores de una referencia bibliográfica
-SELECT CONCAT(a.apellidos, a.nombres)
+SELECT CONCAT(a.apellidos,' ', a.nombres)
 FROM autores a
 INNER JOIN publicaciones p ON p.autor = a.id
 INNER JOIN referencias r ON r.id = p.referencia
@@ -77,8 +77,7 @@ RETURNING id;
 -- :doc Recupera las citas de una referencia bibliográfica
 SELECT c.cita, c.paginas
 FROM citas c
-INNER JOIN referencias r ON r.id = c.referencia
-WHERE r.id = :referencias/id
+WHERE c.referencia = :citas/referencia
 
 
 -- Colecciones
@@ -100,13 +99,14 @@ RETURNING id;
 
 -- :name obtener-referencias-por-coleccion :? :n
 -- :doc Devuelve las referencias que pertencen a una misma coleccion
-SELECT CONCAT(a.apellidos, a.nombres), r.tipo_publicacion, r.titulo, r.editorial, r.ciudad, r.ano, r.volumen, r.nombre_revista, 
+SELECT CONCAT(a.apellidos, ' ', a.nombres), r.tipo_publicacion, r.titulo, r.editorial, r.ciudad, r.ano, r.volumen, r.nombre_revista, 
               r.nombre_libro
 FROM referencias r
 INNER JOIN publicaciones p ON p.referencia = r.id
 INNER JOIN coleccion_items ci ON r.id = ci.referencia
+INNER JOIN colecciones c ON c.id = ci.coleccion
 LEFT JOIN autores a ON a.id = p.autor
-WHERE nombre_coll = :colecciones/nombre_coll
+WHERE c.nombre_coll = :colecciones/nombre_coll
 
 
 -- Bibliotecas
@@ -129,7 +129,7 @@ RETURNING id;
 -- :name obtener-colecciones-por-usuario :? :n
 -- :doc Retorna los nombres de las colecciones que pertenecen a un usuario. Recibe como argumento el id de la biblioteca y el
 -- id de usuario
-SELECT nombre_coll
+SELECT c.nombre_coll
 FROM colecciones c
 INNER JOIN biblioteca_items bi ON c.id = bi.coleccion
 INNER JOIN bibliotecas b ON bi.biblioteca = b.id

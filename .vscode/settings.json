@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "tuffi",
+            "connectString": "postgres://wixhilrr:mMSBJoo2Kcedpr_b3HpPxw7c6nUfcPzT@tuffi.db.elephantsql.com/wixhilrr"
+        }
+    ]
+}
