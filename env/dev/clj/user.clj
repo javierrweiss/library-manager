@@ -1,7 +1,6 @@
 (ns user
   "Userspace functions you can run by default in your local REPL."
-  (:require
-    [/home/jrivero/library-manager/env/dev/cljclojure.pprint]
+  (:require 
     [clojure.spec.alpha :as s]
     [clojure.tools.namespace.repl :as repl]
     [criterium.core :as c]                                  ;; benchmarking
@@ -13,7 +12,7 @@
     [lambdaisland.classpath.watch-deps :as watch-deps]      ;; hot loading for deps 
     [javierweiss.library-manager.core :refer [start-app]])) ;; Si falta esta dependencia, no arranca el repl
  
-;; uncomment to enable hot loading for deps
+;; uncomment to enable hot loading for deps 
 (watch-deps/start! {:aliases [:dev :test]})
 
 (alter-var-root #'s/*explain-out* (constantly expound/printer))
@@ -52,12 +51,24 @@
 
 (def query-fn (:db.sql/query-fn state/system))
 
-
+    
 (comment
-  (go)
-  (reset)
-  (reset-all)
+  (require '[portal.api :as p])
+  (def p (p/open {:launcher :vs-code}))
+  (add-tap #'p/submit)
+  (test-prep!)  
+  (dev-prep!) 
+  (init)
+  (go)  
+  (reset)     
+  (reset-all)   
   (clear)
+  (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
+  
+  (:db.sql/connection state/system)
+  
+  (query-fn :obtener-referencias-y-publicaciones)
+
   ;;Crear las tablas en el orden correcto y sin que que solape el timestamp
   (doseq [tabla ["usuarios-table"
                  "autores-table"

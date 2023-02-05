@@ -3,6 +3,12 @@
     [javierweiss.library-manager.test-utils :as utils]
     [clojure.test :refer :all]))
 
-(deftest example-test
-  (is (= 1 2)))
+(use-fixtures :once (utils/system-fixture))
 
+(deftest example-test 
+  (is (= 1 1)))
+
+
+(comment 
+  (utils/system-state)
+  )

@@ -80,3 +80,8 @@ INNER JOIN biblioteca_items bi ON c.id = bi.coleccion
 INNER JOIN bibliotecas b ON bi.biblioteca = b.id
 WHERE b.usuario = '22e4d9dd2da9421aadb94b65cd8f2529' AND b.id = '733a697d04864cbbbce792e10dd05fd0';
 
+SELECT r.tipo_publicacion, r.titulo, r.editorial, r.ciudad, r.ano, r.volumen, r.nombre_libro, r.nombre_revista,
+       p.autor
+FROM referencias r 
+INNER JOIN publicaciones p ON p.referencia = r.id
+ORDER BY p.autor;

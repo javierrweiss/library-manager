@@ -5,7 +5,7 @@
             [clojure.spec.alpha :as spec]))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;; Conexión ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; Conexión ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def node (:db.xtdb/node state/system))
 
@@ -13,11 +13,21 @@
   [nodo]
   (.close nodo))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;; Specs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;; Specs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(spec/def :queries/xtdbnode #(= xtdb.node.XtdbNode (type %)))
+(spec/def :queries/xtdbnode #(= 'xtdb.node.XtdbNode (type %)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;; Funciones ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;; Utils ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro query-entity
+  [llave pull-exp lvar]
+  `{:find [~pull-exp]
+    :where [[~lvar ~llave]]})
+
+(defn q [nodo query & args]
+  (apply xt/q (xt/db nodo) query args))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;; Consultas/DML ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn agregar-documentos
   "Uses XTDB put transaction to add a vector of documents to a specified
@@ -45,9 +55,6 @@
     (catch AssertionError e (.getMessage e))
     (catch IllegalArgumentException e (.getMessage e))
     (catch Exception e (.getMessage e))))
-
-(defn q [nodo query & args]
-  (apply xt/q (xt/db nodo) query args))
 
 (defn obtener-por-id
   "Recupera una entidad por su uuid"
@@ -77,6 +84,13 @@
         ent (xt/entity db ident)]
     (xt/submit-tx nodo [[::xt/put (assoc ent k v)]]))) 
 
+(defn obtener-todas-las-entidades
+  "Muestra todas las entidades que coincidan con la llave"
+  [nodo k]
+  {:pre [(spec/valid? :queries/xtdbnode nodo)
+         (spec/valid? keyword? k)]}
+  (q nodo (query-entity k '(pull ?entidad [*]) '?entidad))) 
+  
 (defn obtener-todos-usuarios
   "Muestra todas las entidades del mapa de entidades de tipo usuario"
   [nodo]
@@ -260,6 +274,21 @@
   (agregar-documentos nil docs4)
   (agregar-doc node (schema/crear-doc-usuario! "Martin Palermo" "martinpalermo@gmail.com" "martpaler" "Gooool!"))
 
+  (defmacro query-entity
+    [llave pull-exp lvar] 
+    `{:find [~pull-exp]
+      :where [[~lvar ~llave]]}) 
+   
+  (q node (query-entity :usuario/nombre '(pull ?entidad [*]) '?entidad))
+     
+  (q node '{:find [(pull ?entidad [*])] 
+            :where [[?entidad :usuario/nombre usuario]]
+            :in [usuario]}
+     "Hilario Cardozo")
+  
+  (q node '{:find [(pull ?entidad [*])]
+            :where [[?entidad :usuario/nombre "Lionel Messi"]]})
+  
   (q node '{:find [{:user nombre :account cuenta}]
             :where [[e :usuario/nombre nombre]
                     [e :usuario/cuenta cuenta]]})
@@ -317,10 +346,11 @@
   (q node '{:find [(pull ?entidad [*])]
             :where [[e :xt/id ?entidad]]})
 
+  (obtener-todas-las-entidades node :autor/nombres)
 
-  (obtener-todos-usuarios node)
+  (tap> (obtener-todos-usuarios node))
 
-  (obtener-todas-referencias node)
+  (tap> (obtener-todas-referencias node))
 
   (obtener-todos-autores node)
 

@@ -47,6 +47,13 @@ INSERT INTO publicaciones (id, referencia, autor)
 VALUES (gen_random_uuid(), :publicaciones/referencia, :publicaciones/autor)
 RETURNING id; 
 
+-- :name obtener-referencias-y-publicaciones :? :n
+-- :doc obtiene todas las referencias con sus autores
+SELECT r.tipo_publicacion, r.titulo, r.editorial, r.ciudad, r.ano, r.volumen, r.nombre_libro, r.nombre_revista,
+       p.autor
+FROM referencias r 
+INNER JOIN publicaciones p ON p.referencia = r.id
+ORDER BY p.autor;
 
 -- Comentarios
 
@@ -57,7 +64,7 @@ VALUES(gen_random_uuid(), :comentarios/referencia, :comentarios/comentario, :com
       :comentarios/usuario)
 RETURNING id;     
 
--- :name obtener-comentarios-por-referencia-id
+-- :name obtener-comentarios-por-referencia-id :? :n
 -- :doc Obtiene los comentarios hechos de una referencia bibliográfica
 SELECT c.comentario, c.palabras_clave, c.paginas
 FROM comentarios c

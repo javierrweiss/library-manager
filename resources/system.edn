@@ -101,4 +101,9 @@
  {:store            :database
   :db               {:datasource #ig/ref :db.sql/connection}
   :migrate-on-init? true} 
+ 
+ :db/type 
+ #profile {:dev {:db-type #or [#env DB "xtdb"]}
+           :test {:db-type "sql"}
+           :prod {:db-type #or [#env DB "xtdb"]}}
 }
