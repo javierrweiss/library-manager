@@ -20,22 +20,31 @@
                    :password (.getPassword (:container iniciado))
                    :container container})))
 
-(use-fixtures :once (:db.sql/query-fn (utils/system-fixture))) 
+(use-fixtures :once (fn [f]
+                      (f)
+                      (tc/stop!))) 
   
 (deftest pruebas_integracion_sql
-      (let [user (library-manager-db/crear-usuario "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434")]
+      (let [q (:db.sql/query-fn (utils/system-state))
+            user (library-manager-db/crear-usuario q "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434")]
         (testing "Crea usuario"
           (is (uuid? user)))
         (testing "Actualiza usuario"
-          (is (   (library-manager-db/actualizar-usuario "cuenta" "juliamarin_90" user)))))) 
+          (is (= 1 (library-manager-db/actualizar-usuario q "cuenta" "juliamarin_90" user))))
+        (testing "Elimina usuario"
+          (is (= 1 (library-manager-db/borrar-usuario q user)))))) 
 
 (comment 
   (tc/stop!)
   (:db.sql/connection (utils/system-state))
   (:db/type (utils/system-state)) 
   (:db.sql/query-fn (utils/system-fixture))
-  (:db.sql/query-fn (utils/system-state))
+  (def qn (:db.sql/query-fn (utils/system-state)))
   (library-manager-db/db-type) 
-  (library-manager-db/query-fn)
-  (library-manager-db/obtener-autores)
+  (library-manager-db/obtener-usuarios qn)
+  
+  (= {:usuarios/correo "leon_leon@hotmail.com"
+      :usuarios/nombre "Leonardo Blanco"
+      :usuarios/cuenta "leoblanco"
+      :usuarios/clave "El leo!! 2004"} (library-manager-db/obtener-usuario-por-id qn #uuid "e5d9580a-6e89-4ea5-9ceb-935d9844036c"))
   )
