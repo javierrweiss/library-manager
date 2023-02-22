@@ -85,7 +85,7 @@
  :db.sql/connection
  #profile {:dev  {:jdbc-url "postgresql://javierweiss:vGI_dfkJrZV-2qxYiTfmNg@picky-beagle-6574.7tt.cockroachlabs.cloud:26257/referencias_bibliograficas?sslmode=verify-full" 
                   #_"postgresql://javierweiss:vGI_dfkJrZV-2qxYiTfmNg@free-tier14.aws-us-east-1.cockroachlabs.cloud:26257/referencias_bibliograficas?sslmode=verify-full&options=--cluster%3Dpicky-beagle-6574"}
-           :test {}
+           :test #ig/ref :db/testcontainers
            :prod {:jdbc-url   #env JDBC_URL
                   :init-size  1
                   :min-idle   1
@@ -106,4 +106,7 @@
  #profile {:dev {:db-type #or [#env DB "xtdb"]}
            :test {:db-type "sql"}
            :prod {:db-type #or [#env DB "xtdb"]}}
+ 
+ :db/testcontainers 
+ #profile {:test {}}
 }

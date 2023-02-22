@@ -42,7 +42,7 @@
                                :id id})))
 
 (defn- crear-entidad
-  [sql-insert datalog-insert]
+  [datalog-insert sql-insert]
   (if (= (db-type) "xtdb")
     datalog-insert
     sql-insert))
@@ -75,11 +75,11 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;; AUTORES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn crear-autor 
+(defn crear-autor
   [qfn nombres apellidos]
   (crear-entidad (datalog.schema/crear-doc-autor! nombres apellidos)
                  (qfn :crear-autor! {:autores/nombres nombres
-                                          :autores/apellidos apellidos})))
+                                     :autores/apellidos apellidos})))
 
 (defn obtener-autores
   [qfn]
@@ -104,11 +104,11 @@
   (qfn :crear-publicacion! {:publicaciones/referencia referencia
                             :publicaciones/autor autor}))
 
-(defn- obtener-publicaciones
+(defn obtener-publicaciones
   [qfn]
   (qfn :obtener-todo {:table "publicaciones"}))
 
-(defn- obtener-publicacion-por-id
+(defn obtener-publicacion-por-id
   [qfn id]
   (qfn :obtener-por-id {:table "publicaciones"
                         :id id}))
@@ -119,8 +119,8 @@
     (qfn :actualizar-registro! {:table "publicaciones"
                                 :updates {campo valor}
                                 :id id})))
-
-(defn- borrar-publicacion
+;;¿La necesito? 
+#_(defn borrar-publicacion
   [qfn id]
   (qfn :borrar-por-id! {:table "publicaciones"
                         :id id}))
@@ -128,20 +128,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;; REFERENCIAS ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn crear-referencia
-  [qfn tipo_publicacion titulo ano editorial ciudad & [volumen nombre_revista nombre_libro autores]]
+  "qfn => Query function
+   tipo_publicacion,titulo,ciudad,ano,editorial,ciudad, volumen, nombre_revista, nombre_libro => string
+   autores => [uuid?]"
+  [qfn tipo_publicacion titulo ano editorial ciudad volumen nombre_revista nombre_libro autores]
   (crear-entidad (datalog.schema/crear-doc-referencia! tipo_publicacion titulo ano editorial ciudad volumen nombre_revista nombre_libro autores)
-                 (let [ref-id (qfn :crear-referencia! {:referencia/autores autores
-                                                            :referencia/titulo titulo
-                                                            :referencia/ano ano
-                                                            :referencia/editorial editorial
-                                                            :referencia/ciudad ciudad
-                                                            :referencia/tipo_publicacion tipo_publicacion
-                                                            :referencia/volumen volumen
-                                                            :referencia/nombre_libro nombre_libro
-                                                            :referencia/nombre_revista nombre_revista})]
-                   (doseq [autor autores]
-                     (crear-publicacion qfn ref-id autor)))))
-
+                 (let [ref-id (-> (qfn :crear-referencia! {:referencia/autores autores
+                                                           :referencia/titulo titulo
+                                                           :referencia/ano ano
+                                                           :referencia/editorial editorial
+                                                           :referencia/ciudad ciudad
+                                                           :referencia/tipo_publicacion tipo_publicacion
+                                                           :referencia/volumen volumen
+                                                           :referencia/nombre_libro nombre_libro
+                                                           :referencia/nombre_revista nombre_revista})
+                                  first
+                                  :id)
+                       pubs-ids (into [] (for [autor autores]
+                                           (-> (crear-publicacion qfn ref-id autor)
+                                               first
+                                               :id)))]
+                   {:referencia ref-id
+                    :publicaciones pubs-ids})))
+ 
 (defn obtener-referencias 
   [qfn]
   (obtener-entidades qfn "referencias" :referencia/titulo)) 
@@ -157,7 +166,7 @@
                                                              :updates {campo valor}
                                                              :id id}))]
     (cond
-      (= db-type "xtdb") (datalog.queries/actualizar-entidad datalog.queries/node id campo valor)
+      (= (db-type) "xtdb") (datalog.queries/actualizar-entidad datalog.queries/node id campo valor)
       (= campo :autor) (->> (actualiza-ref-sql)
                             (actualizar-publicacion qfn campo valor))
       :else (actualiza-ref-sql))))
@@ -253,7 +262,7 @@
   [qfn nombre_coll & referencias]
   (crear-entidad (datalog.schema/crear-doc-colecciones! nombre_coll (vec referencias))
                  (let [coll-id (qfn :crear-coleccion! {:colecciones/nombre_coll nombre_coll})]
-                   (doseq [referencia referencias]
+                   (for [referencia referencias]
                      (crear-coleccion-item qfn coll-id referencia)))))
 
 (defn obtener-colecciones 
@@ -308,7 +317,7 @@
   (crear-entidad (datalog.schema/crear-doc-bibliotecas! usuario nombre_biblioteca (vec colecciones))
                  (let [bib-id (qfn :crear-biblioteca! {:bibliotecas/nombre_biblioteca nombre_biblioteca
                                                        :bibliotecas/usuario usuario})]
-                   (doseq [coleccion colecciones]
+                   (for [coleccion colecciones]
                      (crear-item-biblioteca qfn bib-id coleccion)))))
 
 (defn obtener-bibliotecas
@@ -332,14 +341,14 @@
 
 
 (comment
-  db-type 
+  (db-type) 
   ;Falta probar por SQL
   ;Es necesario crear una funcion que gestione las bibliotecas y las colecciones, de modo que 
   ; abstraiga las discrepancias entre los esquemas de SQL y Datalog.
   ;Podríamos integrar las de items en colecciones y bibliotecas respectivamente, tratando el caso del
   ; SQL donde se crearía la coleccion y el item
-  (def q (:db.sql/query-fn (state/system)))
-  (tap> (obtener-usuarios q)) 
+  (def q (:db.sql/query-fn state/system))
+  (tap> (obtener-usuarios q))     
   (actualizar-usuario q :nombre "Lisando Machado" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
   (actualizar-usuario q :nombre "Miguel Marin" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
   (obtener-usuario-por-id q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
@@ -357,6 +366,12 @@
   (borrar-referencia q #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
   (crear-referencia q "Libro" "Los años de Valcarce" "2009" "El Farolito" "Madrid" nil nil nil [#uuid "c0518830-11e2-4a4e-819c-faa2c700d60d"])
   (obtener-publicaciones q)
+  (into [] (for [autor [#uuid "2317eb29-30c0-4c7a-9b90-99ccdad4b0f4" 
+                          #uuid "97d8cfe9-f260-4657-b483-05ad52d6a5eb"
+                          #uuid "9f0a9109-cb33-4765-93e7-87d0f92cd838"]]
+             (-> (crear-publicacion q #uuid "abb6620f-3746-4680-9969-2f1b96fe16e5" autor)
+                 first
+                 :id)))
   (datalog.schema/crear-doc-bibliotecas! (java.util.UUID/randomUUID) "Biblioteca mayor" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID))
   (xtdb.api/attribute-stats datalog.queries/node) 
   )

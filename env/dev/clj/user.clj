@@ -36,7 +36,7 @@
 ;; the two profiles.
 (dev-prep!)
 
-(repl/set-refresh-dirs "src/clj")
+(repl/set-refresh-dirs "src/clj" "test/clj")
 
 (def refresh repl/refresh)
 
@@ -49,22 +49,23 @@
 (defn migrate []
   (migratus.core/migrate (:db.sql/migrations state/system)))
 
-(def query-fn (:db.sql/query-fn state/system))
-
-    
-(comment
-  (require '[portal.api :as p])
+(def query-fn (:db.sql/query-fn state/system)) 
+     
+(comment 
+  (require '[flow-storm.api :as fs-api])
+  (require '[portal.api :as p]) 
   (def p (p/open {:launcher :vs-code}))
-  (add-tap #'p/submit)
+  (add-tap #'p/submit) 
   (test-prep!)  
-  (dev-prep!) 
-  (init)
-  (go)  
+  (dev-prep!)  
+  (init) 
+  (go)
+  (halt)  
   (reset)     
-  (reset-all)   
+  (reset-all)    
   (clear)
   (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
-  
+    
   (:db.sql/connection state/system)
   
   (query-fn :obtener-referencias-y-publicaciones)
