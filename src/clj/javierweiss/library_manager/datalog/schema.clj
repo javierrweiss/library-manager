@@ -79,8 +79,14 @@
 (defn crear-doc-colecciones!
   [nombre_coll & referencias]
   {:pre [(spec/valid? string? nombre_coll)
-         (spec/valid? (spec/or :a nil? :b (spec/coll-of uuid?)) referencias)]}
+         (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) referencias)]} ;;Problema con este spec cuando hay más de una referencia
   {:xt/id (java.util.UUID/randomUUID)
    :coleccion/nombre_coll nombre_coll
    :coleccion/referencias (vec referencias)})
 
+(comment
+  (crear-doc-colecciones! "Colección de Perros" #uuid "f33fef14-66be-4890-b158-4321fd7615f5")
+  (crear-doc-colecciones! "Colección de Perros" #uuid "f33fef14-66be-4890-b158-4321fd7615f5" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID))
+  (crear-doc-colecciones! "Colección de Perros" (vector #uuid "f33fef14-66be-4890-b158-4321fd7615f5" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID)))
+  (crear-doc-colecciones! "Coleccion XXX")
+  )

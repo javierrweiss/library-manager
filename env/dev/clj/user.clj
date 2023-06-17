@@ -53,11 +53,12 @@
      
 (comment 
   (require '[flow-storm.api :as fs-api])
+  (fs-api/local-connect)
   (require '[portal.api :as p]) 
   (def p (p/open {:launcher :vs-code}))
-  (add-tap #'p/submit) 
-  (test-prep!)  
-  (dev-prep!)  
+  (add-tap #'p/submit)  
+  (test-prep!)   
+  (dev-prep!)   
   (init) 
   (go)
   (halt)  
@@ -65,7 +66,7 @@
   (reset-all)    
   (clear)
   (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
-    
+  (ns-unmap 'user 'start-app)  
   (:db.sql/connection state/system)
   
   (query-fn :obtener-referencias-y-publicaciones)
