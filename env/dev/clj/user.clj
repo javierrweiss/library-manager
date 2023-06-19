@@ -79,12 +79,15 @@
                  "citas-table"
                  "comentarios-table"
                  "colecciones-table"
-                 "bibliotecas-table"
+                 "bibliotecas-table" 
                  "biblioteca-items-table"
                  "coleccion-items-table"]]
     (migratus.core/create (:db.sql/migrations state/system) tabla)
     (Thread/sleep 1000))
 
+  (kit/sync-modules)
+  (kit/list-modules)
+  (kit/install-module :kit/ctmx)
   ;;No necesitaba crearla, ya estaba
   (def consulta (:db.sql/query-fn state/system)) 
 

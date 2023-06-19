@@ -3,6 +3,7 @@
     [javierweiss.library-manager.web.controllers.health :as health]
     [javierweiss.library-manager.web.middleware.exception :as exception]
     [javierweiss.library-manager.web.middleware.formats :as formats]
+    [javierweiss.library-manager.web.controllers.usuario :as usuario]
     [integrant.core :as ig]
     [reitit.coercion.malli :as malli]
     [reitit.ring.coercion :as coercion]
@@ -17,7 +18,9 @@
            :swagger {:info {:title "javierweiss.library-manager API"}}
            :handler (swagger/create-swagger-handler)}}]
    ["/health"
-    {:get health/healthcheck!}]])
+    {:get health/healthcheck!}]
+   ["/usuario"
+    {:post (fn [req] (usuario/crear-usuario req))}]])
 
 (defn route-data
   [opts]

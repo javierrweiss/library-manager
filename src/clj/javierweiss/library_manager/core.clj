@@ -21,7 +21,8 @@
 
     ;; Routes
     [javierweiss.library-manager.web.routes.api]
-    )
+    
+    [javierweiss.library-manager.web.routes.ui])
   (:gen-class))
 
 ;; log uncaught exceptions in threads
