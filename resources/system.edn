@@ -105,7 +105,7 @@
  :db/type 
  #profile {:dev {:db-type #or [#env DB "xtdb"]}
            :test {:db-type "sql"}
-           :prod {:db-type #or [#env DB "xtdb"]}}
+           :prod {:db-type #or [#env DB "sql"]}}
  
  :db/testcontainers 
  #profile {:test {}}

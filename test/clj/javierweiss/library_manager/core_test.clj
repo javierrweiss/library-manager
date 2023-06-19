@@ -38,7 +38,9 @@
           cita (library-manager-db/crear-cita q id-ref "Los azulejos son azules..." "120" id-u)
           id-cita (:id (first cita))
           coleccion (library-manager-db/crear-coleccion q "Ciencias sociales" id-ref)
-          id-col (:coleccion coleccion)]
+          id-col (:coleccion coleccion)
+          biblioteca (library-manager-db/crear-biblioteca q id-u "Biblioteca Mayor Simón Bolívar" id-col)
+          id-biblioteca (:biblioteca biblioteca)]
       (testing "Crea usuario"
         (is (uuid? id-u)))
       (testing "Actualiza usuario" 
@@ -65,6 +67,12 @@
         (is (uuid? id-col)))
       (testing "Actualizar coleccion"
         (is (= 1 (library-manager-db/actualizar-coleccion q :nombre_coll "Coleccion nueva" id-col))))
+      (testing "Crear biblioteca"
+             (is (uuid? id-biblioteca)))
+      (testing "Actualizar biblioteca"
+             (is (= 1 (library-manager-db/actualizar-biblioteca q :nombre_biblioteca "Biblioteca de la Lora" id-biblioteca))))
+      (testing "Eliminar biblioteca"
+        (is (= 1 (library-manager-db/borrar-biblioteca q id-biblioteca))))
       (testing "Eliminar coleccion"
         (is (= 1 (library-manager-db/borrar-coleccion q id-col))))
       (testing "Elimina cita"
