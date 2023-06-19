@@ -38,7 +38,7 @@
           cita (library-manager-db/crear-cita q id-ref "Los azulejos son azules..." "120" id-u)
           id-cita (:id (first cita))
           coleccion (library-manager-db/crear-coleccion q "Ciencias sociales" id-ref)
-          id-col (:id (first coleccion))]
+          id-col (:coleccion coleccion)]
       (testing "Crea usuario"
         (is (uuid? id-u)))
       (testing "Actualiza usuario" 
