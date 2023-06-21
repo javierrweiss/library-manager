@@ -23,7 +23,7 @@
              :name clave}]
     [:input {:type "submit"
              :value "Registrarse"
-             :hx-post "/usuario"}]]])
+             :hx-post "/api/usuario"}]]])
 
 (defn ui-routes [base-path]
   (ctmx/make-routes
