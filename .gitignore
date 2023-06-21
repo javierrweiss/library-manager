@@ -20,3 +20,5 @@ modules/
 
 .portal
 .vscode
+.clj-kondo/ctmx/ctmx/config.edn
+.portal/vs-code.edn
