@@ -47,37 +47,9 @@
                                      :content-types true
                                      :default-charset "utf-8"}}}
 
- :reitit.routes/api
- {:base-path "/api"
-  :env #ig/ref :system/env
-  :metrics #ig/ref :metrics/prometheus
-  :query-fn #ig/ref :db.sql/query-fn}
-
- :router/routes
- {:routes #ig/refset :reitit/routes}
-
- :router/core
- {:routes #ig/ref :router/routes}
-
- :cronut/scheduler
- {:schedule []}
-
- :templating/selmer
- {}
-
- ;; https://docs.xtdb.com/administration/configuring/
- :db.xtdb/node
- #profile {:dev {:xtdb.http-server/server {:port 3200}
-                 :xtdb/tx-log {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
-                                          :db-dir "data/dev/tx-log"
-                                          :sync? true}}
-                 :xtdb/document-store {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
-                                                  :db-dir "data/dev/doc-store"
-                                                  :sync? true}}
-                 :xtdb/index-store {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
-                                               :db-dir "data/dev/index-store"
-                                               :sync? true}}}
-           :test {}
+ :db/testcontainers
+ #profile {:test {}
+           :dev {}
            :prod {}}
 
  :db.sql/connection
@@ -105,8 +77,42 @@
            :test {:db-type "sql"}
            :prod {:db-type #or [#env DB "sql"]}}
 
- :db/testcontainers
- #profile {:test {}}
- 
+;; https://docs.xtdb.com/administration/configuring/
+ :db.xtdb/node
+ #profile {:dev {:xtdb.http-server/server {:port 3200}
+                 :xtdb/tx-log {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
+                                          :db-dir "data/dev/tx-log"
+                                          :sync? true}}
+                 :xtdb/document-store {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
+                                                  :db-dir "data/dev/doc-store"
+                                                  :sync? true}}
+                 :xtdb/index-store {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
+                                               :db-dir "data/dev/index-store"
+                                               :sync? true}}}
+           :test {}
+           :prod {}}
+
+ :db/conn {:db-type #ig/ref :db/type
+           :sql-db #ig/ref :db.sql/query-fn
+           :datalog-db #ig/ref :db.xtdb/node}
+
+ :reitit.routes/api
+ {:base-path "/api"
+  :env #ig/ref :system/env
+  :metrics #ig/ref :metrics/prometheus
+  :query-fn #ig/ref :db/conn}
+
+ :router/routes
+ {:routes #ig/refset :reitit/routes}
+
+ :router/core
+ {:routes #ig/ref :router/routes}
+
+ :cronut/scheduler
+ {:schedule []}
+
+ :templating/selmer
+ {}
+
  :reitit.routes/ui {:base-path "",
                     :env #ig/ref :system/env}}

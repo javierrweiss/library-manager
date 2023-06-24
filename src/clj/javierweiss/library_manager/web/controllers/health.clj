@@ -2,7 +2,9 @@
   (:require
     [ring.util.http-response :as http-response])
   (:import
-    [java.util Date]))
+    (java.util
+      Date)))
+
 
 (defn healthcheck!
   [req]

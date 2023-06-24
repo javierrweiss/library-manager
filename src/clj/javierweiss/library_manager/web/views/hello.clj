@@ -1,14 +1,16 @@
 (ns javierweiss.library-manager.web.views.hello
-    (:require
-      [ctmx.core :as ctmx :refer [defcomponent]]
-      [javierweiss.library-manager.web.htmx :refer [page-htmx]]))
+  (:require
+    [ctmx.core :as ctmx :refer [defcomponent]]
+    [javierweiss.library-manager.web.htmx :refer [page-htmx]]))
+
 
 (defcomponent ^:endpoint hello [req my-name]
   [:div#hello "Hello " my-name])
 
+
 (defcomponent ^:endpoint crea-usuario [req nombre correo cuenta clave]
   [:div#user-register
-   [:form 
+   [:form
     [:label "Nombre Completo"]
     [:input {:type "text"
              :name  nombre}]
@@ -25,12 +27,14 @@
              :value "Registrarse"
              :hx-post "/api/usuario"}]]])
 
-(defn ui-routes [base-path]
+
+(defn ui-routes
+  [base-path]
   (ctmx/make-routes
-   base-path
-   (fn [req]
-     (page-htmx
-      (crea-usuario req "" "" "" "")))))
+    base-path
+    (fn [req]
+      (page-htmx
+        (crea-usuario req "" "" "" "")))))
 
 
 (comment 

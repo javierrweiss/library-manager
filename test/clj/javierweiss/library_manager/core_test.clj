@@ -137,8 +137,7 @@
   (->> (library-manager-db/obtener-referencias qn)
        (map :id)
        (map #(library-manager-db/borrar-referencia qn %)))
-
-  (library-manager-db/obtener-publicaciones qn)
+  
 
   (as-> (map :id (library-manager-db/obtener-autores qn)) au
     (map #(library-manager-db/borrar-autor qn %) au)) 

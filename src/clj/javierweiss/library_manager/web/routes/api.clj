@@ -1,18 +1,20 @@
 (ns javierweiss.library-manager.web.routes.api
   (:require
+    [integrant.core :as ig]
     [javierweiss.library-manager.web.controllers.health :as health]
+    [javierweiss.library-manager.web.controllers.usuario :as usuario]
     [javierweiss.library-manager.web.middleware.exception :as exception]
     [javierweiss.library-manager.web.middleware.formats :as formats]
-    [javierweiss.library-manager.web.controllers.usuario :as usuario]
-    [integrant.core :as ig]
     [reitit.coercion.malli :as malli]
     [reitit.ring.coercion :as coercion]
     [reitit.ring.middleware.muuntaja :as muuntaja]
     [reitit.ring.middleware.parameters :as parameters]
     [reitit.swagger :as swagger]))
 
+
 ;; Routes
-(defn api-routes [_opts]
+(defn api-routes
+  [_opts]
   [["/swagger.json"
     {:get {:no-doc  true
            :swagger {:info {:title "javierweiss.library-manager API"}}
@@ -21,6 +23,7 @@
     {:get health/healthcheck!}]
    ["/usuario"
     {:post (fn [req] (usuario/crear-usuario req))}]])
+
 
 (defn route-data
   [opts]
@@ -46,7 +49,9 @@
                   ;; exception handling
                   exception/wrap-exception]}))
 
+
 (derive :reitit.routes/api :reitit/routes)
+
 
 (defmethod ig/init-key :reitit.routes/api
   [_ {:keys [base-path]

@@ -1,13 +1,16 @@
-(ns javierweiss.library-manager.datalog.schema
-  (:require [clojure.spec.alpha :as spec]))
+(ns javierweiss.library-manager.datalog.documents
+  (:require
+    [clojure.spec.alpha :as spec]))
 
-;;;;;;;;;;;;;;; Specs ;;;;;;;;;;;;;;;;;;;;;
+
+;; Specs ;;;;;;;;;;;;;;;;;;;;;
 
 (spec/def :schema/pags (spec/and string? #(< (count %) 10)))
 (spec/def :schema/ids (spec/or :a nil? :b (spec/coll-of uuid?)))
 (spec/def :schema/correo (spec/and string? #(re-matches #"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,63}$" %)))
 
-;;;;;;;;;;;;;;;;;;; Documentos/Schema ;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Documentos/Schema ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn crear-doc-usuario!
   [nombre correo cuenta clave]
@@ -19,12 +22,14 @@
    :usuario/cuenta cuenta
    :usuario/clave clave})
 
+
 (defn crear-doc-autor!
   [nombres apellidos]
   {:pre [(spec/valid?  (spec/* string?) [nombres apellidos])]}
   {:xt/id (java.util.UUID/randomUUID)
    :autor/nombres nombres
    :autor/apellidos apellidos})
+
 
 (defn crear-doc-referencia!
   [tipo_publicacion titulo ano editorial ciudad & [volumen nombre_revista nombre_libro autores]]
@@ -42,6 +47,7 @@
    :referencia/nombre_libro nombre_libro
    :referencia/autores autores})
 
+
 (defn crear-doc-citas!
   [referencia cita paginas usuario]
   {:pre [(spec/valid? string? cita)
@@ -52,6 +58,7 @@
    :cita/cita cita
    :cita/paginas paginas
    :cita/usuario usuario})
+
 
 (defn crear-doc-comentarios!
   [referencia comentario paginas palabras_clave usuario]
@@ -64,6 +71,7 @@
    :comentario/paginas paginas
    :comentario/palabras_clave palabras_clave
    :comentario/usuario usuario})
+
 
 (defn crear-doc-bibliotecas!
   [usuario nombre_biblioteca & colecciones]
@@ -79,14 +87,28 @@
 (defn crear-doc-colecciones!
   [nombre_coll & referencias]
   {:pre [(spec/valid? string? nombre_coll)
-         (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) referencias)]} ;;Problema con este spec cuando hay más de una referencia
+         (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) (-> referencias flatten vec))]} 
   {:xt/id (java.util.UUID/randomUUID)
    :coleccion/nombre_coll nombre_coll
-   :coleccion/referencias (vec referencias)})
+   :coleccion/referencias (-> referencias flatten vec)})
+
 
 (comment
   (crear-doc-colecciones! "Colección de Perros" #uuid "f33fef14-66be-4890-b158-4321fd7615f5")
   (crear-doc-colecciones! "Colección de Perros" #uuid "f33fef14-66be-4890-b158-4321fd7615f5" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID))
   (crear-doc-colecciones! "Colección de Perros" (vector #uuid "f33fef14-66be-4890-b158-4321fd7615f5" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID)))
   (crear-doc-colecciones! "Coleccion XXX")
+  (crear-doc-colecciones! "Colección de Perros" (list #uuid "f33fef14-66be-4890-b158-4321fd7615f5" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID)))
+
+  (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid? :into [])) (java.util.UUID/randomUUID))
+
+  (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid? :into [])) [(java.util.UUID/randomUUID) (java.util.UUID/randomUUID)])
+
+  (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid? :into [])) '((java.util.UUID/randomUUID)))
+
+  (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) '((java.util.UUID/randomUUID)))
+
+  (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) [(java.util.UUID/randomUUID)])
+  
+
   )

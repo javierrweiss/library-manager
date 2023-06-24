@@ -52,19 +52,18 @@
 (def query-fn (:db.sql/query-fn state/system)) 
      
 (comment 
-  (require '[flow-storm.api :as fs-api])
-  (fs-api/local-connect)
   (require '[portal.api :as p]) 
   (def p (p/open {:launcher :vs-code}))
   (add-tap #'p/submit)  
   (test-prep!)   
   (dev-prep!)   
   (init) 
+  (init )
   (go)
   (halt)  
   (reset)     
   (reset-all)    
-  (clear)
+  (clear) 
   (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)  
   (:db.sql/connection state/system)
