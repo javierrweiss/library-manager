@@ -22,9 +22,13 @@
    ["/health"
     {:get health/healthcheck!}]
    ["/usuario"
-    {:post (fn [req] (usuario/crear-usuario req))}]])
+    {:post {:parameters {:form-params {:nombre string?
+                                       :cuenta string?
+                                       :correo string?
+                                       :clave string?}}} 
+            :handler usuario/crear-usuario}]])
 
-
+ 
 (defn route-data
   [opts]
   (merge

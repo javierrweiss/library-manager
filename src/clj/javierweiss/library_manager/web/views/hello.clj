@@ -1,31 +1,38 @@
 (ns javierweiss.library-manager.web.views.hello
   (:require
-    [ctmx.core :as ctmx :refer [defcomponent]]
-    [javierweiss.library-manager.web.htmx :refer [page-htmx]]))
+   [ctmx.core :as ctmx :refer [defcomponent]]
+   [javierweiss.library-manager.web.htmx :refer [page-htmx]]
+   [clojure.tools.logging :as log]
+   [javierweiss.library-manager.db.db :as db]
+   [javierweiss.library-manager.web.routes.utils :as utils]))
 
 
 (defcomponent ^:endpoint hello [req my-name]
   [:div#hello "Hello " my-name])
 
 
-(defcomponent ^:endpoint crea-usuario [req nombre correo cuenta clave]
+(defcomponent ^:endpoint usuario [req ^:path nombre ^:path correo ^:path cuenta ^:path clave]
   [:div#user-register
-   [:form
+   [:form {:id "registro"
+           :hx-post "/api/usuario"}
     [:label "Nombre Completo"]
     [:input {:type "text"
-             :name  nombre}]
+             :name  (path "nombre")
+             :value nombre}]
     [:label "Correo electrónico"]
     [:input {:type "text"
-             :name  correo}]
+             :name  (path "correo")
+             :value correo}]
     [:label "Nombre de cuenta"]
     [:input {:type "text"
-             :name  cuenta}]
+             :name  (path "cuenta")
+             :value cuenta}]
     [:label "Ingrese su contraseña"]
     [:input {:type "password"
-             :name clave}]
+             :name (path "clave")
+             :value clave}]
     [:input {:type "submit"
-             :value "Registrarse"
-             :hx-post "/api/usuario"}]]])
+             :value "Registrarse"}]]])
 
 
 (defn ui-routes
@@ -34,16 +41,20 @@
     base-path
     (fn [req]
       (page-htmx
-        (crea-usuario req "" "" "" "")))))
+        (usuario req "" "" "" "")))))
 
 
-(comment 
+(comment
   [:label {:style "margin-right: 10px"}
    "What is your name?"]
-[:input {:type "text"
-         :name "my-name"
-         :hx-patch "hello"
-         :hx-target "#hello"
-         :hx-swap "outerHTML"}]
+  [:input {:type "text"
+           :name "my-name"
+           :hx-patch "hello"
+           :hx-target "#hello"
+           :hx-swap "outerHTML"}]
+  (ui-routes "")
+  
+ 
+  
   
   )

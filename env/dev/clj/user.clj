@@ -87,6 +87,7 @@
   (kit/sync-modules)
   (kit/list-modules)
   (kit/install-module :kit/ctmx)
+  (kit/install-module :kit/hato)
   ;;No necesitaba crearla, ya estaba
   (def consulta (:db.sql/query-fn state/system)) 
 

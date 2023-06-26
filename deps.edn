@@ -57,7 +57,7 @@
                                 org.testcontainers/cockroachdb          {:mvn/version "1.17.6"}
                                 com.github.jpmonettas/clojure           {:mvn/version "RELEASE"}
                                 com.github.jpmonettas/flow-storm-dbg    {:mvn/version "RELEASE"}
-                                }
+                                hato/hato                               {:mvn/version "0.9.0"}}
                   :extra-paths ["env/dev/clj" "env/dev/resources" "test/clj"]
                   :jvm-opts  ["-Dclojure.storm.instrumentEnable=true" "-Dclojure.storm.instrumentOnlyPrefixes=javierweiss.library-manager."]}
            :nrepl {:extra-deps {nrepl/nrepl {:mvn/version "0.9.0"}}
