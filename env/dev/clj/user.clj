@@ -58,10 +58,10 @@
   (test-prep!)   
   (dev-prep!)   
   (init) 
-  (init )
+  (init ) 
   (go)
   (halt)  
-  (reset)     
+  (reset)      
   (reset-all)    
   (clear) 
   (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.

@@ -109,6 +109,6 @@
   (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) '((java.util.UUID/randomUUID)))
 
   (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) [(java.util.UUID/randomUUID)])
-  
 
+  (spec/valid? :schema/correo "javier@hotmail.com")
   )
