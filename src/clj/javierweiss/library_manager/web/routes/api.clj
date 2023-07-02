@@ -22,11 +22,24 @@
    ["/health"
     {:get health/healthcheck!}]
    ["/usuario"
+    {:get {:parameters {:query {:id number?}}}
+     :handler usuario/obtener-usuario}
     {:post {:parameters {:form-params {:nombre string?
                                        :cuenta string?
                                        :correo string?
                                        :clave string?}}} 
-            :handler usuario/crear-usuario}]])
+     :handler usuario/crear-usuario}
+    {:put {:parameters {:query {:id number?}
+                        :form-params {:nombre string?}}}
+     :handler usuario/actualizar-nombre-usuario}
+    {:put {:parameters {:query {:id number?}
+                        :form-params {:correo string?}}}
+     :handler usuario/actualizar-correo-usuario}
+    {:put {:parameters {:query {:id number?}
+                        :form-params {:clave string?}}}
+     :handler usuario/actualizar-clave-usuario}
+    {:delete {:parameters {:query {:id number?}}
+              :handler usuario/borrar-usuario}}]])
 
  
 (defn route-data

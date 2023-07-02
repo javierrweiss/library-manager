@@ -17,6 +17,8 @@
     datalog-db
     sql-db))
 
+(defmethod ig/init-key :db/testcontainers [_ _]
+  nil)
 
 (def ^:dynamic *db-type* (:db/type state/system))
 

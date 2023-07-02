@@ -48,9 +48,7 @@
                                      :default-charset "utf-8"}}}
 
  :db/testcontainers
- #profile {:test {}
-           :dev {}
-           :prod {}}
+ #profile {:test {}}
 
  :db.sql/connection
  #profile {:dev {:jdbc-url "postgresql://javierweiss:vGI_dfkJrZV-2qxYiTfmNg@picky-beagle-6574.7tt.cockroachlabs.cloud:26257/referencias_bibliograficas?sslmode=verify-full"

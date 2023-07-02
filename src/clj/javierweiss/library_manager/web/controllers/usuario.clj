@@ -27,12 +27,73 @@
           (exception/handler (.getMessage e) 0 e req))))))
 
 
-(defn actualizar-usuario
-  [])
+(defn actualizar-nombre-usuario
+  [{{:keys [usuario_nombre]} :params
+    {:keys [id]} :query-params :as req}]
+  (log/debug "Estos son los body-params " (:body-params req)
+             "Estos son los form-params " (:form-params req)
+             "Estos son los params " (:params req))
+  (let [{:keys [query-fn]} (utils/route-data req)]
+    (try
+      (db/actualizar-usuario query-fn 'usuario usuario_nombre id)
+      (http-response/ok "Nombre de usuario cambiado con éxito")
+      (catch Exception e
+           (log/error "Error al actualizar usuario")
+           (exception/handler (.getMessage e) 0 e req)))))
 
+(defn actualizar-correo-usuario
+  [{{:keys [usuario_correo]} :params
+    {:keys [id]} :query-params :as req}]
+  (log/debug "Estos son los body-params " (:body-params req)
+             "Estos son los form-params " (:form-params req)
+             "Estos son los params " (:params req))
+  (let [{:keys [query-fn]} (utils/route-data req)]
+    (try
+      (db/actualizar-usuario query-fn 'correo usuario_correo id)
+      (http-response/ok "Correo actualizado con éxito")
+      (catch Exception e
+        (log/error "Error al actualizar usuario")
+        (exception/handler (.getMessage e) 0 e req)))))
+
+(defn actualizar-clave-usuario
+  [{{:keys [usuario_clave]} :params 
+    {:keys [id]} :query-params :as req}]
+  (log/debug "Estos son los body-params " (:body-params req)
+             "Estos son los form-params " (:form-params req)
+             "Estos son los params " (:params req))
+  (let [{:keys [query-fn]} (utils/route-data req)]
+    (try
+      (db/actualizar-usuario query-fn 'clave usuario_clave id)
+      (http-response/ok "Clave actualizada con éxito")
+      (catch Exception e
+        (log/error "Error al actualizar usuario")
+        (exception/handler (.getMessage e) 0 e req)))))
 
 (defn borrar-usuario
-  [])
+  [{{:keys [id]} :query-params :as req}]
+  (log/debug "Estos son los body-params " (:body-params req)
+             "Estos son los form-params " (:form-params req)
+             "Estos son los params " (:params req))
+  (let [{:keys [query-fn]} (utils/route-data req)]
+    (try
+      (db/borrar-usuario query-fn id)
+      (http-response/ok "Usuario borrado")
+      (catch Exception e
+        (log/error "Error al eliminar usuario")
+        (exception/handler (.getMessage e) 0 e req)))))
+
+(defn obtener-usuario
+  [{{:keys [id]} :query-params :as req}]
+  (log/debug "Estos son los body-params " (:body-params req)
+             "Estos son los form-params " (:form-params req)
+             "Estos son los params " (:params req))
+  (let [{:keys [query-fn]} (utils/route-data req)]
+    (try
+      (db/obtener-usuario-por-id query-fn id)
+      (http-response/ok "Usuario obtenido")
+      (catch Exception e
+        (log/error "Error al recuperar usuario")
+        (exception/handler (.getMessage e) 0 e req)))))
 
 
 (comment
@@ -66,5 +127,15 @@
   (db/crear-usuario (:db/conn state/system) "Fulano" "fulano233" "fulano@gmail.com" "332ssd··")
    
   (db/obtener-usuarios (:db/conn state/system))
+
+  (def req {:params {:usuario_nombre "Fulano"}
+            :query-params {:id 123456}})
+  
+  (defn dummy-fn
+    [{{:keys [usuario_nombre]} :params
+      {:keys [id]} :query-params :as re}]
+    re)
+  
+  (dummy-fn req)
    
   )
