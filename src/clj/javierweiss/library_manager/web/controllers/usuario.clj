@@ -6,7 +6,8 @@
     [javierweiss.library-manager.web.routes.utils :as utils]
     [ring.util.http-response :as http-response]
     [hato.client :as hc]
-    [integrant.repl.state :as state]))
+    [integrant.repl.state :as state]
+    [javierweiss.library-manager.web.controllers.usuario :as usuario]))
 
 (defn crear-usuario
   [{{:keys [usuario_nombre usuario_cuenta usuario_correo usuario_clave]} :params :as req}] 
@@ -27,8 +28,7 @@
 
 
 (defn actualizar-nombre-usuario
-  [{{:keys [usuario_nombre]} :params
-    {:keys [id]} :query-params :as req}]
+  [{{:keys [id usuario_nombre]} :query-params :as req}]
   (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
              "Estos son los form-params " (:form-params req)
@@ -42,8 +42,7 @@
            (exception/handler (.getMessage e) 0 e req)))))
 
 (defn actualizar-correo-usuario
-  [{{:keys [usuario_correo]} :params
-    {:keys [id]} :query-params :as req}]
+  [{{:keys [id usuario_correo]} :query-params :as req}]
   (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
              "Estos son los form-params " (:form-params req)
@@ -57,8 +56,7 @@
         (exception/handler (.getMessage e) 0 e req)))))
 
 (defn actualizar-clave-usuario
-  [{{:keys [usuario_clave]} :params 
-    {:keys [id]} :query-params :as req}]
+  [{{:keys [id usuario_clave]} :query-params :as req}]
   (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
              "Estos son los form-params " (:form-params req)
@@ -99,6 +97,16 @@
           (http-response/ok))
       (catch Exception e
         (log/error "Error al recuperar usuario")
+        (exception/handler (.getMessage e) 0 e req)))))
+
+(defn obtener-todos-usuarios
+  [req]
+  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+    (try
+      (-> (db/obtener-usuarios type conn)
+          (http-response/ok))
+      (catch Exception e
+        (log/error "Error al obtener usuarios")
         (exception/handler (.getMessage e) 0 e req)))))
 
 

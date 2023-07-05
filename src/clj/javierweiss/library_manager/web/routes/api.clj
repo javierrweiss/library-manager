@@ -33,17 +33,19 @@
     {:delete {:parameters {:query {:id string?}}
               :handler usuario/borrar-usuario}}]
    ["/usuario/nom/"
-    {:put {:parameters {:query {:id string?}
-                        :form-params {:nombre string?}}
+    {:put {:parameters {:query {:id string?
+                                :usuario_nombre string?}}
            :handler usuario/actualizar-nombre-usuario}}]
    ["/usuario/mail/"
-    {:put {:parameters {:query {:id string?}
-                        :form-params {:correo string?}}
+    {:put {:parameters {:query {:id string?
+                                :usuario_correo string?}}
            :handler usuario/actualizar-correo-usuario}}]
    ["/usuario/kywd/"
-    {:put {:parameters {:query {:id string?}
-                        :form-params {:clave string?}}
-           :handler usuario/actualizar-clave-usuario}}]])
+    {:put {:parameters {:query {:id string?
+                                :usuario_clave string?}}
+           :handler usuario/actualizar-clave-usuario}}]
+   ["/usuario/todos/"
+    {:get usuario/obtener-todos-usuarios}]])
 
  
 (defn route-data
