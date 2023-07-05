@@ -10,32 +10,32 @@
 
 (defn crear-usuario
   [{{:keys [usuario_nombre usuario_cuenta usuario_correo usuario_clave]} :params :as req}] 
-    (log/debug "Estos son los body-params " (:body-params req)
-               "Estos son los form-params " (:form-params req)
-               "Estos son los params " (:params req))
-  (binding [db/*db-type* (:db (utils/route-data req))]
-    (log/debug "El tipo de base de datos es: " db/*db-type*)
-    (let [{:keys [query-fn]} (utils/route-data req)]
-      (try
-        (log/debug "Creando usuario con los parámetros " usuario_nombre usuario_cuenta usuario_correo)
-        (if (some nil? [usuario_nombre usuario_cuenta usuario_correo usuario_clave])
-          (http-response/bad-request "Ningún campo debe quedar vacío")
-          (do (db/crear-usuario query-fn usuario_nombre usuario_correo usuario_cuenta usuario_clave)
-              (http-response/ok "Registro enviado con éxito")))
-        (catch Exception e
-          (log/error "Error al crear usuario")
-          (exception/handler (.getMessage e) 0 e req))))))
+  (tap> req)
+  (log/debug "Estos son los body-params " (:body-params req)
+             "Estos son los form-params " (:form-params req)
+             "Estos son los params " (:params req)) 
+  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+    (try
+      (log/debug "Creando usuario con los parámetros " usuario_nombre usuario_cuenta usuario_correo)
+      (if (some nil? [usuario_nombre usuario_cuenta usuario_correo usuario_clave])
+        (http-response/bad-request "Ningún campo debe quedar vacío")
+        (do (db/crear-usuario type conn usuario_nombre usuario_correo usuario_cuenta usuario_clave)
+            (http-response/ok "Registro enviado con éxito")))
+      (catch Exception e
+        (log/error "Error al crear usuario")
+        (exception/handler (.getMessage e) 0 e req)))))
 
 
 (defn actualizar-nombre-usuario
   [{{:keys [usuario_nombre]} :params
     {:keys [id]} :query-params :as req}]
+  (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
              "Estos son los form-params " (:form-params req)
              "Estos son los params " (:params req))
-  (let [{:keys [query-fn]} (utils/route-data req)]
+  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
     (try
-      (db/actualizar-usuario query-fn 'usuario usuario_nombre id)
+      (db/actualizar-usuario type conn 'usuario usuario_nombre (java.util.UUID/fromString id))
       (http-response/ok "Nombre de usuario cambiado con éxito")
       (catch Exception e
            (log/error "Error al actualizar usuario")
@@ -44,12 +44,13 @@
 (defn actualizar-correo-usuario
   [{{:keys [usuario_correo]} :params
     {:keys [id]} :query-params :as req}]
+  (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
              "Estos son los form-params " (:form-params req)
              "Estos son los params " (:params req))
-  (let [{:keys [query-fn]} (utils/route-data req)]
+  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
     (try
-      (db/actualizar-usuario query-fn 'correo usuario_correo id)
+      (db/actualizar-usuario type conn 'correo usuario_correo (java.util.UUID/fromString id))
       (http-response/ok "Correo actualizado con éxito")
       (catch Exception e
         (log/error "Error al actualizar usuario")
@@ -58,12 +59,13 @@
 (defn actualizar-clave-usuario
   [{{:keys [usuario_clave]} :params 
     {:keys [id]} :query-params :as req}]
+  (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
              "Estos son los form-params " (:form-params req)
              "Estos son los params " (:params req))
-  (let [{:keys [query-fn]} (utils/route-data req)]
+  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
     (try
-      (db/actualizar-usuario query-fn 'clave usuario_clave id)
+      (db/actualizar-usuario type conn 'clave usuario_clave (java.util.UUID/fromString id))
       (http-response/ok "Clave actualizada con éxito")
       (catch Exception e
         (log/error "Error al actualizar usuario")
@@ -71,12 +73,13 @@
 
 (defn borrar-usuario
   [{{:keys [id]} :query-params :as req}]
+  (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
              "Estos son los form-params " (:form-params req)
              "Estos son los params " (:params req))
-  (let [{:keys [query-fn]} (utils/route-data req)]
+  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
     (try
-      (db/borrar-usuario query-fn id)
+      (db/borrar-usuario type conn (java.util.UUID/fromString id))
       (http-response/ok "Usuario borrado")
       (catch Exception e
         (log/error "Error al eliminar usuario")
@@ -84,20 +87,26 @@
 
 (defn obtener-usuario
   [{{:keys [id]} :query-params :as req}]
+  (tap> req)
   (log/debug "Estos son los body-params " (:body-params req)
-             "Estos son los form-params " (:form-params req)
-             "Estos son los params " (:params req))
-  (let [{:keys [query-fn]} (utils/route-data req)]
+             "\n Estos son los form-params " (:form-params req)
+             "\n Estos son los params " (:params req)
+             "\n Este es el valor de la llave query-fn " (:query-fn (utils/route-data req)))
+  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+    (log/debug "Conexión: " conn "\n Tipo DB: " type)
     (try
-      (db/obtener-usuario-por-id query-fn id)
-      (http-response/ok "Usuario obtenido")
+      (-> (db/obtener-usuario-por-id type conn (java.util.UUID/fromString id))
+          (http-response/ok))
       (catch Exception e
         (log/error "Error al recuperar usuario")
         (exception/handler (.getMessage e) 0 e req)))))
 
 
 (comment
-
+  (def c (->  state/system :reitit.routes/api second :query-fn first :conn))
+  (->
+   (db/obtener-usuario-por-id "xtdb" c (java.util.UUID/fromString "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1"))
+   (http-response/ok))
   (require '[hato.client :as hc])
   (def c (hc/build-http-client {:connect-timeout 10000
                                 :redirect-policy :always
@@ -120,22 +129,11 @@
                           {:http-client c}))
   :ex
   (require '[integrant.repl.state :as state])
-
-  db/*db-type*
-  (:db/type state/system)
-
-  (db/crear-usuario (:db/conn state/system) "Fulano" "fulano233" "fulano@gmail.com" "332ssd··")
-   
-  (db/obtener-usuarios (:db/conn state/system))
-
-  (def req {:params {:usuario_nombre "Fulano"}
-            :query-params {:id 123456}})
   
-  (defn dummy-fn
-    [{{:keys [usuario_nombre]} :params
-      {:keys [id]} :query-params :as re}]
-    re)
-  
-  (dummy-fn req)
-   
+  (hc/get "http://127.0.0.1:3000/api/usuario"
+          {:query-params {:id "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1"}
+           #_:content-type #_:json}
+          {:http-client c})
+  :ex
+  (java.util.UUID/fromString  "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1")
   )

@@ -46,6 +46,12 @@
                                      :absolute-redirects true
                                      :content-types true
                                      :default-charset "utf-8"}}}
+ 
+ [:db/conn :db-type/sql] {:conn #ig/ref :db.sql/query-fn
+                          :type "sql"}
+
+ [:db/conn :db-type/xtdb] {:conn #ig/ref :db.xtdb/node
+                           :type "xtdb"}
 
  :db/testcontainers
  #profile {:test {}}
@@ -70,11 +76,6 @@
   :db {:datasource #ig/ref :db.sql/connection}
   :migrate-on-init? true}
 
- :db/type
- #profile {:dev {:db-type #or [#env DB "xtdb"]}
-           :test {:db-type "sql"}
-           :prod {:db-type #or [#env DB "sql"]}}
-
 ;; https://docs.xtdb.com/administration/configuring/
  :db.xtdb/node
  #profile {:dev {:xtdb.http-server/server {:port 3200}
@@ -89,18 +90,13 @@
                                                :sync? true}}}
            :test {}
            :prod {}}
-
- :db/conn {:db-type #ig/ref :db/type
-           :sql-db #ig/ref :db.sql/query-fn
-           :datalog-db #ig/ref :db.xtdb/node}
-
- :reitit.routes/api
+ 
+ :reitit.routes/api 
  {:base-path "/api"
   :env #ig/ref :system/env
-  :metrics #ig/ref :metrics/prometheus
-  :db #ig/ref :db/type
-  :query-fn #ig/ref :db/conn}
-
+  :metrics #ig/ref :metrics/prometheus 
+  :query-fn #ig/refset :db/conn}
+ 
  :router/routes
  {:routes #ig/refset :reitit/routes}
 

@@ -9,46 +9,38 @@
 
 ;; CONFIGURACION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defmethod ig/init-key :db/type [_ {:keys [db-type]}] db-type)
-
-
-(defmethod ig/init-key :db/conn [_ {:keys [db-type sql-db datalog-db]}]
-  (if (= db-type "xtdb")
-    datalog-db
-    sql-db))
+(defmethod ig/init-key :db/conn [_ conn]
+  conn)
 
 (defmethod ig/init-key :db/testcontainers [_ _]
   nil)
-
-(def ^:dynamic *db-type* (:db/type state/system))
-
 
 ;; FUNCIONES GENERALES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn- obtener-entidades
   "Recibe un argumento tipo string para la tabla SQL y un argumento tipo keyword para las entidades Datalog"
-  [qfn tabla entidad]
-  (log/info "Ejecutando sentencia en: " *db-type*)
-  (if (= *db-type* "xtdb")
+  [db-type qfn tabla entidad]
+  (log/info "Ejecutando sentencia en: " db-type)
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todas-las-entidades qfn entidad)
     (qfn :obtener-todo {:table tabla})))
 
 
 (defn- obtener-entidad-por-id
   "Nombre de la tabla para SQL e id de la entidad para ambos modos de persistencia"
-  [qfn tabla id]
-  (log/info "Ejecutando sentencia en: " *db-type*)
-  (if (= *db-type* "xtdb")
+  [db-type qfn tabla id]
+  (log/info "Ejecutando sentencia en: " db-type)
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
     (qfn :obtener-por-id {:table tabla
                           :id id})))
 
 
 (defn- actualizar-entidad
-  [qfn tabla campo valor id]
-  (log/info "Ejecutando sentencia en: " *db-type*)
+  [db-type qfn tabla campo valor id]
+  (log/info "Ejecutando sentencia en: " db-type)
   (let [campo (if-not (keyword? campo) (keyword campo) campo)]
-    (if (= *db-type* "xtdb")
+    (if (= db-type "xtdb")
       (datalog.queries/actualizar-entidad qfn id campo valor)
       (qfn :actualizar-registro! {:table tabla
                                   :updates {campo valor}
@@ -56,9 +48,9 @@
 
 
 (defn- borrar-entidad
-  [qfn tabla id]
-  (log/info "Ejecutando sentencia en: " *db-type*)
-  (if (= *db-type* "xtdb")
+  [db-type qfn tabla id]
+  (log/info "Ejecutando sentencia en: " db-type)
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
     (qfn :borrar-por-id! {:table tabla
                           :id id})))
@@ -69,8 +61,8 @@
 (defn crear-usuario
   "qfn => Query function \n
    nombre, correo, cuenta, clave => string"
-  [qfn nombre correo cuenta clave]
-  (if (= *db-type* "xtdb")
+  [db-type qfn nombre correo cuenta clave]
+  (if (= db-type "xtdb")
     (datalog.queries/agregar-doc qfn (datalog.documents/crear-doc-usuario! nombre correo cuenta clave))
     (qfn :crear-usuario! {:usuarios/nombre nombre
                           :usuarios/correo correo
@@ -79,31 +71,31 @@
 
 
 (defn obtener-usuarios
-  [qfn]
-  (if (= *db-type* "xtdb")
+  [db-type qfn]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todos-usuarios qfn)
-    (obtener-entidades qfn "usuarios" :usuario/nombre)))
+    (obtener-entidades db-type qfn "usuarios" :usuario/nombre)))
 
 
 (defn obtener-usuario-por-id
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id qfn "usuarios" id)))
+    (obtener-entidad-por-id db-type qfn "usuarios" id)))
 
 
 (defn actualizar-usuario
-  [qfn campo valor id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn campo valor id]
+  (if (= db-type "xtdb")
     (datalog.queries/actualizar-entidad qfn id campo valor)
-    (actualizar-entidad qfn "usuarios" campo valor id)))
+    (actualizar-entidad db-type qfn "usuarios" campo valor id)))
 
 
 (defn borrar-usuario
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad qfn "usuarios" id)))
+    (borrar-entidad db-type qfn "usuarios" id)))
 
 
 ;; AUTORES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -111,39 +103,39 @@
 (defn crear-autor
   "qfn => Query function \n
    nombres, apellidos => string"
-  [qfn nombres apellidos]
-  (if (= *db-type* "xtdb")
+  [db-type qfn nombres apellidos]
+  (if (= db-type "xtdb")
     (datalog.queries/agregar-doc qfn (datalog.documents/crear-doc-autor! nombres apellidos))
     (qfn :crear-autor! {:autores/nombres nombres
                         :autores/apellidos apellidos})))
 
 
 (defn obtener-autores
-  [qfn]
-  (if (= *db-type* "xtdb")
+  [db-type qfn]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todos-autores qfn)
-    (obtener-entidades qfn "autores" :autor/nombres)))
+    (obtener-entidades db-type qfn "autores" :autor/nombres)))
 
 
 (defn obtener-autor-por-id
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id qfn "autores" id)))
+    (obtener-entidad-por-id db-type qfn "autores" id)))
 
 
 (defn actualizar-autor
-  [qfn campo valor id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn campo valor id]
+  (if (= db-type "xtdb")
     (datalog.queries/actualizar-entidad qfn id campo valor)
-    (actualizar-entidad qfn "autores" campo valor id)))
+    (actualizar-entidad db-type qfn "autores" campo valor id)))
 
 
 (defn borrar-autor
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad qfn "autores" id)))
+    (borrar-entidad db-type qfn "autores" id)))
 
 
 ;; PUBLICACIONES ;;;;;;;;;;;;;;;;;;;;;;
@@ -186,8 +178,8 @@
   "qfn => Query function \n
    tipo_publicacion,titulo,ciudad,ano,editorial,ciudad, volumen, nombre_revista, nombre_libro => string \n
    autores => [uuid?]"
-  [qfn tipo_publicacion titulo ano editorial ciudad volumen nombre_revista nombre_libro autores]
-  (if (= *db-type* "xtdb")
+  [db-type qfn tipo_publicacion titulo ano editorial ciudad volumen nombre_revista nombre_libro autores]
+  (if (= db-type "xtdb")
     (datalog.queries/agregar-doc qfn
                                  (datalog.documents/crear-doc-referencia! tipo_publicacion titulo ano editorial ciudad volumen nombre_revista nombre_libro autores))
     (let [ref-id (-> (qfn :crear-referencia! {:referencia/autores autores
@@ -210,38 +202,38 @@
 
 
 (defn obtener-referencias
-  [qfn]
-  (if (= *db-type* "xtdb")
+  [db-type qfn]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todas-referencias qfn)
-    (obtener-entidades qfn "referencias" :referencia/titulo)))
+    (obtener-entidades db-type qfn "referencias" :referencia/titulo)))
 
 
 (defn obtener-referencia-por-id
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id qfn "referencias" id)))
+    (obtener-entidad-por-id db-type qfn "referencias" id)))
 
 
 (defn actualizar-referencia
-  [qfn campo valor id]
+  [db-type qfn campo valor id]
   (let [campo (if-not (keyword? campo) (keyword campo) campo)
         actualiza-ref-sql (fn []
                             (qfn :actualizar-registro! {:table "referencias"
                                                         :updates {campo valor}
                                                         :id id}))]
     (cond
-      (= *db-type* "xtdb") (datalog.queries/actualizar-entidad qfn id campo valor)
+      (= db-type "xtdb") (datalog.queries/actualizar-entidad qfn id campo valor)
       (= campo :autor) (->> (actualiza-ref-sql)
                             (actualizar-publicacion qfn campo valor))
       :else (actualiza-ref-sql))))
 
 
 (defn borrar-referencia
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad qfn "referencias" id)))
+    (borrar-entidad db-type qfn "referencias" id)))
 
 
 ;; CITAS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -251,8 +243,8 @@
    referencia => uuid \n
    cita, paginas => string \n
    usuario => uuid"
-  [qfn referencia cita paginas usuario]
-  (if (= *db-type* "xtdb")
+  [db-type qfn referencia cita paginas usuario]
+  (if (= db-type "xtdb")
     (datalog.queries/agregar-doc qfn (datalog.documents/crear-doc-citas! referencia cita paginas usuario))
     (qfn :crear-cita! {:citas/referencia referencia
                        :citas/cita cita
@@ -261,31 +253,31 @@
 
 
 (defn obtener-citas
-  [qfn]
-  (if (= *db-type* "xtdb")
+  [db-type qfn]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todas-citas qfn)
     (obtener-entidades qfn "citas" :cita/referencia)))
 
 
 (defn obtener-cita-por-id
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
     (obtener-entidad-por-id qfn "citas" id)))
 
 
 (defn actualizar-cita
-  [qfn campo valor id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn campo valor id]
+  (if (= db-type "xtdb")
     (datalog.queries/actualizar-entidad qfn id campo valor)
     (actualizar-entidad qfn "citas" campo valor id)))
 
 
 (defn borrar-cita
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad qfn "citas" id)))
+    (borrar-entidad db-type qfn "citas" id)))
 
 
 ;; COMENTARIOS ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -294,8 +286,8 @@
   "qfn => Query function \n
    comentario, paginas, palabras_clave => string \n
    referencia, usuario => uuid"
-  [qfn comentario paginas palabras_clave referencia usuario]
-  (if (= *db-type* "xtdb")
+  [db-type qfn comentario paginas palabras_clave referencia usuario]
+  (if (= db-type "xtdb")
     (datalog.queries/agregar-doc qfn (datalog.documents/crear-doc-comentarios! referencia comentario paginas palabras_clave usuario))
     (qfn :crear-comentario! {:comentarios/referencia referencia
                              :comentarios/comentario comentario
@@ -305,31 +297,31 @@
 
 
 (defn obtener-comentarios
-  [qfn]
-  (if (= *db-type* "xtdb")
+  [db-type qfn]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todos-comentarios qfn)
-    (obtener-entidades qfn "comentarios" :comentario/referencia)))
+    (obtener-entidades db-type qfn "comentarios" :comentario/referencia)))
 
 
 (defn obtener-comentario-por-id
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id qfn "comentarios" id)))
+    (obtener-entidad-por-id db-type qfn "comentarios" id)))
 
 
 (defn actualizar-comentario
-  [qfn campo valor id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn campo valor id]
+  (if (= db-type "xtdb")
     (datalog.queries/actualizar-entidad qfn id campo valor)
-    (actualizar-entidad qfn "comentarios" campo valor id)))
+    (actualizar-entidad db-type qfn "comentarios" campo valor id)))
 
 
 (defn borrar-comentario
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad qfn "comentarios" id)))
+    (borrar-entidad db-type qfn "comentarios" id)))
 
 
 ;; COLECCION-ITEMS ::::::::::::::::::::::::::
@@ -371,8 +363,8 @@
   "qfn => Query function \n
    nombre_coll => string \n
    referencias => uuid"
-  [qfn nombre_coll & referencias]
-  (if (= *db-type* "xtdb")
+  [db-type qfn nombre_coll & referencias]
+  (if (= db-type "xtdb")
     (datalog.queries/agregar-doc qfn (datalog.documents/crear-doc-colecciones! nombre_coll referencias))
     (let [coll-id (-> (qfn :crear-coleccion! {:colecciones/nombre_coll nombre_coll})
                       first
@@ -385,31 +377,31 @@
 
 
 (defn obtener-colecciones
-  [qfn]
-  (if (= *db-type* "xtdb")
+  [db-type qfn]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todas-colecciones qfn)
-    (obtener-entidades qfn "colecciones" :coleccion/nombre_coll)))
+    (obtener-entidades db-type qfn "colecciones" :coleccion/nombre_coll)))
 
 
 (defn obtener-coleccion-por-id
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id qfn "coleccciones" id)))
+    (obtener-entidad-por-id db-type qfn "coleccciones" id)))
 
 
 (defn actualizar-coleccion
-  [qfn campo valor id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn campo valor id]
+  (if (= db-type "xtdb")
     (datalog.queries/actualizar-entidad qfn id campo valor)
-    (actualizar-entidad qfn "colecciones" campo valor id)))
+    (actualizar-entidad db-type qfn "colecciones" campo valor id)))
 
 
 (defn borrar-coleccion
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad qfn "colecciones" id)))
+    (borrar-entidad db-type qfn "colecciones" id)))
 
 
 ;; BIBLIOTECA-ITEMS ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -452,8 +444,8 @@
    usuario => uuid \n
    nombre_biblioteca => string \n
    colecciones => uuid"
-  [qfn usuario nombre_biblioteca & colecciones]
-  (if (= *db-type* "xtdb")
+  [db-type qfn usuario nombre_biblioteca & colecciones]
+  (if (= db-type "xtdb")
     (datalog.queries/agregar-doc qfn (datalog.documents/crear-doc-bibliotecas! usuario nombre_biblioteca (vec colecciones)))
     (let [bib-id (-> (qfn :crear-biblioteca! {:bibliotecas/nombre_biblioteca nombre_biblioteca
                                               :bibliotecas/usuario usuario})
@@ -468,31 +460,31 @@
 
 
 (defn obtener-bibliotecas
-  [qfn]
-  (if (= *db-type* "xtdb")
+  [db-type qfn]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-todas-bibliotecas qfn)
-    (obtener-entidades qfn "bibliotecas" :coleccion/nombre_coll)))
+    (obtener-entidades db-type qfn "bibliotecas" :coleccion/nombre_coll)))
 
 
 (defn obtener-biblioteca-por-id
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id qfn "bibliotecas" id)))
+    (obtener-entidad-por-id db-type qfn "bibliotecas" id)))
 
 
 (defn actualizar-biblioteca
-  [qfn campo valor id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn campo valor id]
+  (if (= db-type "xtdb")
     (datalog.queries/actualizar-entidad qfn id campo valor)
-    (actualizar-entidad qfn "bibliotecas" campo valor id)))
+    (actualizar-entidad db-type qfn "bibliotecas" campo valor id)))
 
 
 (defn borrar-biblioteca
-  [qfn id]
-  (if (= *db-type* "xtdb")
+  [db-type qfn id]
+  (if (= db-type "xtdb")
     (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad qfn "bibliotecas" id)))
+    (borrar-entidad db-type qfn "bibliotecas" id)))
 
 
 ;; OTRAS CONSULTAS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -504,34 +496,34 @@
   :dbg
 (:db/conn state/system)
   (:system/env state/system)
-  *db-type* 
+  "xtdb"
   (def q (:db/conn state/system))
   (type q)
-  (tap> (obtener-usuarios q))      
-  (actualizar-usuario q :nombre "Lisando Machado" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
-  (actualizar-usuario q :nombre "Miguel Marin" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
-  (obtener-usuario-por-id q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
-  (obtener-usuario-por-id q #uuid "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1")
-  (borrar-usuario q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b") 
-  (crear-usuario q "José Marín" "marino@gmail.com" "el_marine" "232jk sds **")
-  (obtener-autores q)
-  (obtener-autor-por-id q #uuid "961469a7-ff35-47a7-b136-9a807a7666a9")
-  (actualizar-autor q :nombres "Julian Amado" #uuid "961469a7-ff35-47a7-b136-9a807a7666a9")
-  (borrar-autor q #uuid "961469a7-ff35-47a7-b136-9a807a7666a9")
-  (crear-autor q "Julio César" "Fabregas")
-  (obtener-referencias q)
-  (obtener-referencia-por-id q #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
-  (actualizar-referencia q :ano 2009 #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
-  (borrar-referencia q #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
-  (crear-referencia q "Libro" "Los años de Valcarce" "2009" "El Farolito" "Madrid" nil nil nil [#uuid "ec9d24d5-2ca1-45d3-b97b-32d79c6619ba"])
+  (tap> (obtener-usuarios "xtdb" q))      
+  (actualizar-usuario "xtdb" q :nombre "Lisando Machado" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
+  (actualizar-usuario "xtdb" q :nombre "Miguel Marin" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
+  (obtener-usuario-por-id "xtdb" q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
+  (obtener-usuario-por-id "xtdb" q #uuid "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1")
+  (borrar-usuario "xtdb" q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b") 
+  (crear-usuario "xtdb" q "José Marín" "marino@gmail.com" "el_marine" "232jk sds **")
+  (obtener-autores "xtdb" q)
+  (obtener-autor-por-id "xtdb" q #uuid "961469a7-ff35-47a7-b136-9a807a7666a9")
+  (actualizar-autor "xtdb" q :nombres "Julian Amado" #uuid "961469a7-ff35-47a7-b136-9a807a7666a9")
+  (borrar-autor "xtdb" q #uuid "961469a7-ff35-47a7-b136-9a807a7666a9")
+  (crear-autor "xtdb" q "Julio César" "Fabregas")
+  (obtener-referencias "xtdb" q)
+  (obtener-referencia-por-id "xtdb" q #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
+  (actualizar-referencia "xtdb" q :ano 2009 #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
+  (borrar-referencia "xtdb" q #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
+  (crear-referencia "xtdb" q "Libro" "Los años de Valcarce" "2009" "El Farolito" "Madrid" nil nil nil [#uuid "ec9d24d5-2ca1-45d3-b97b-32d79c6619ba"])
   :ex  
   (tap>  
    (crear-coleccion q "Coleccion Animal" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748")) 
    (crear-coleccion q "Coleccion horizontes" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748" (java.util.UUID/randomUUID))
-  (obtener-colecciones q) 
-  (obtener-publicaciones q)
-  (obtener-citas q)
-  (obtener-comentarios q)
+  (obtener-colecciones "xtdb" q) 
+  (obtener-publicaciones  q)
+  (obtener-citas "xtdb" q)
+  (obtener-comentarios "xtdb" q)
   (into [] (for [autor [#uuid "2317eb29-30c0-4c7a-9b90-99ccdad4b0f4" 
                           #uuid "97d8cfe9-f260-4657-b483-05ad52d6a5eb"
                           #uuid "9f0a9109-cb33-4765-93e7-87d0f92cd838"]]
