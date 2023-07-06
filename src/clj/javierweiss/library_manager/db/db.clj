@@ -256,21 +256,21 @@
   [db-type qfn]
   (if (= db-type "xtdb")
     (datalog.queries/obtener-todas-citas qfn)
-    (obtener-entidades qfn "citas" :cita/referencia)))
+    (obtener-entidades db-type qfn "citas" :cita/referencia)))
 
 
 (defn obtener-cita-por-id
   [db-type qfn id]
   (if (= db-type "xtdb")
     (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id qfn "citas" id)))
+    (obtener-entidad-por-id db-type qfn "citas" id)))
 
 
 (defn actualizar-cita
   [db-type qfn campo valor id]
   (if (= db-type "xtdb")
     (datalog.queries/actualizar-entidad qfn id campo valor)
-    (actualizar-entidad qfn "citas" campo valor id)))
+    (actualizar-entidad db-type qfn "citas" campo valor id)))
 
 
 (defn borrar-cita
