@@ -30,7 +30,7 @@
   (log/debug "Estos son los params " (:params req))
   (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
     (try
-      (db/actualizar-usuario type conn 'usuario usuario_nombre (java.util.UUID/fromString id))
+      (db/actualizar-usuario type conn 'nombre usuario_nombre (java.util.UUID/fromString id))
       (http-response/ok "Nombre de usuario cambiado con éxito")
       (catch Exception e
            (log/error "Error al actualizar usuario")

@@ -18,7 +18,7 @@
 ;; FUNCIONES GENERALES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn- obtener-entidades
-  "Recibe un argumento tipo string para la tabla SQL y un argumento tipo keyword para las entidades Datalog"
+  "Recibe el tipo de db, una query-fn, la tabla (en string para sql, keyword para datalog) y la entidad (datalog)"
   [db-type qfn tabla entidad]
   (log/info "Ejecutando sentencia en: " db-type)
   (if (= db-type "xtdb")
@@ -39,13 +39,14 @@
 (defn- actualizar-entidad
   [db-type qfn tabla campo valor id]
   (log/info "Ejecutando sentencia en: " db-type)
-  (let [campo (if-not (keyword? campo) (keyword campo) campo)]
+  (let [campo-sql (keyword campo)
+        campo-xtdb (keyword tabla campo)]
     (if (= db-type "xtdb")
-      (datalog.queries/actualizar-entidad qfn id campo valor)
-      (qfn :actualizar-registro! {:table tabla
-                                  :updates {campo valor}
+      (datalog.queries/actualizar-entidad qfn id campo-xtdb valor)
+      (qfn :actualizar-registro! {:table (str tabla "s")
+                                  :updates {campo-sql valor}
                                   :id id}))))
-
+ 
 
 (defn- borrar-entidad
   [db-type qfn tabla id]
@@ -85,10 +86,8 @@
 
 
 (defn actualizar-usuario
-  [db-type qfn campo valor id]
-  (if (= db-type "xtdb")
-    (datalog.queries/actualizar-entidad qfn id campo valor)
-    (actualizar-entidad db-type qfn "usuarios" campo valor id)))
+  [db-type qfn campo valor id] 
+  (actualizar-entidad db-type qfn "usuario" campo valor id))
 
 
 (defn borrar-usuario
@@ -295,7 +294,6 @@
                              :comentarios/palabras_clave palabras_clave
                              :comentarios/usuario usuario})))
 
-
 (defn obtener-comentarios
   [db-type qfn]
   (if (= db-type "xtdb")
@@ -492,19 +490,22 @@
 
 (comment
   :tut/basics
-  :tut/next 
+  :tut/next
   :dbg
-(:db/conn state/system)
+  (keys state/system)
   (:system/env state/system)
-  "xtdb"
-  (def q (:db/conn state/system))
+  (def q (-> (state/system [:db/conn :db-type/xtdb]) :conn))
+  (def q-sql (-> (state/system [:db/conn :db-type/sql]) :conn))
+  (tap> (obtener-usuarios "sql" q-sql))
+  (actualizar-usuario "sql" q-sql "correo" "mireya_sarda@gmail.com" #uuid "eaf55b4a-f37e-420d-9b78-55a99f46a703")
+  (actualizar-usuario "xtdb" q "nombre" "Julio Vargas" #uuid "ea601669-c7e0-404e-bcff-02a13753480c")
   (type q)
-  (tap> (obtener-usuarios "xtdb" q))      
-  (actualizar-usuario "xtdb" q :nombre "Lisando Machado" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
+  (tap> (obtener-usuarios "xtdb" q))
+
   (actualizar-usuario "xtdb" q :nombre "Miguel Marin" #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
   (obtener-usuario-por-id "xtdb" q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
   (obtener-usuario-por-id "xtdb" q #uuid "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1")
-  (borrar-usuario "xtdb" q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b") 
+  (borrar-usuario "xtdb" q #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b")
   (crear-usuario "xtdb" q "José Marín" "marino@gmail.com" "el_marine" "232jk sds **")
   (obtener-autores "xtdb" q)
   (obtener-autor-por-id "xtdb" q #uuid "961469a7-ff35-47a7-b136-9a807a7666a9")
@@ -516,24 +517,33 @@
   (actualizar-referencia "xtdb" q :ano 2009 #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
   (borrar-referencia "xtdb" q #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809")
   (crear-referencia "xtdb" q "Libro" "Los años de Valcarce" "2009" "El Farolito" "Madrid" nil nil nil [#uuid "ec9d24d5-2ca1-45d3-b97b-32d79c6619ba"])
-  :ex  
-  (tap>  
-   (crear-coleccion q "Coleccion Animal" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748")) 
-   (crear-coleccion q "Coleccion horizontes" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748" (java.util.UUID/randomUUID))
-  (obtener-colecciones "xtdb" q) 
+  :ex
+  (tap>
+   (crear-coleccion q "Coleccion Animal" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748"))
+  (crear-coleccion q "Coleccion horizontes" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748" (java.util.UUID/randomUUID))
+  (obtener-colecciones "xtdb" q)
   (obtener-publicaciones  q)
   (obtener-citas "xtdb" q)
   (obtener-comentarios "xtdb" q)
-  (into [] (for [autor [#uuid "2317eb29-30c0-4c7a-9b90-99ccdad4b0f4" 
-                          #uuid "97d8cfe9-f260-4657-b483-05ad52d6a5eb"
-                          #uuid "9f0a9109-cb33-4765-93e7-87d0f92cd838"]]
+  (into [] (for [autor [#uuid "2317eb29-30c0-4c7a-9b90-99ccdad4b0f4"
+                        #uuid "97d8cfe9-f260-4657-b483-05ad52d6a5eb"
+                        #uuid "9f0a9109-cb33-4765-93e7-87d0f92cd838"]]
              (-> (crear-publicacion q #uuid "abb6620f-3746-4680-9969-2f1b96fe16e5" autor)
                  first
                  :id)))
   (datalog.documents/crear-doc-bibliotecas! (java.util.UUID/randomUUID) "Biblioteca mayor" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID))
   (datalog.documents/crear-doc-colecciones! "Coleccion coleccionable" (java.util.UUID/randomUUID))
-  (xtdb.api/attribute-stats datalog.queries/node) 
+  (xtdb.api/attribute-stats datalog.queries/node)
 
-  '(+ 3 4 344)
-  (eval '(+ 3 4 344))
+  (defmulti get-entity :db-type)
+  
+  (defmethod get-entity :sql
+    [qfn tabla]
+    (qfn :obtener-todo {:table tabla}))
+  
+  (defmethod get-entity :xtdb
+    [nodo entidad]
+    (datalog.queries/obtener-todas-las-entidades nodo entidad))
+
+  
   )

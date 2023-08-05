@@ -83,8 +83,7 @@
 (defn actualizar-entidad
   "Recibe como argumentos un nodo, un uuid, un campo y un valor y actualiza la entidad correspondiente"
   [nodo ident k v]
-  {:pre [(spec/valid? (fn [elem] (some #(= % elem) (keys (xt/attribute-stats nodo)))) k) 
-         (spec/valid? uuid? ident)]}
+  {:pre [(spec/valid? uuid? ident)]}
   (let [db (xt/db nodo)
         ent (xt/entity db ident)]
     (xt/submit-tx nodo [[::xt/put (assoc ent k v)]])))
@@ -146,8 +145,10 @@
 
 
 (comment 
-  (def node (:db/conn state/system))  
-  (xt/status node)
+  (def node (:conn (state/system [:db/conn :db-type/xtdb]))) 
+  (tap> (keys (xt/attribute-stats node)))
+  (actualizar-entidad node #uuid "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1" :nombre "Lino Clemente") 
+  (xt/status node) 
   (xt/status node)
   (stop-xtdb! node)
   (type (type (:db.xtdb/node state/system)))
