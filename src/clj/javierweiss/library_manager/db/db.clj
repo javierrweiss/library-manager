@@ -17,84 +17,82 @@
 
 ;; FUNCIONES GENERALES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn- obtener-entidades
-  "Recibe el tipo de db, una query-fn, la tabla (en string para sql, keyword para datalog) y la entidad (datalog)"
-  [db-type qfn tabla entidad]
-  (log/info "Ejecutando sentencia en: " db-type)
-  (if (= db-type "xtdb")
-    (datalog.queries/obtener-todas-las-entidades qfn entidad)
-    (qfn :obtener-todo {:table tabla})))
+(defmulti obtener-entidades (fn [state-map _ _] (:db-type state-map)))
 
+(defmethod obtener-entidades :sql 
+  [state-map tabla _] 
+  ((:query-fn state-map) :obtener-todo {:table tabla}))
 
-(defn- obtener-entidad-por-id
-  "Nombre de la tabla para SQL e id de la entidad para ambos modos de persistencia"
-  [db-type qfn tabla id]
-  (log/info "Ejecutando sentencia en: " db-type)
-  (if (= db-type "xtdb")
-    (datalog.queries/obtener-por-id qfn id)
-    (qfn :obtener-por-id {:table tabla
-                          :id id})))
+(defmethod obtener-entidades :xtdb
+ [state-map _ entidad]
+ (datalog.queries/obtener-todas-las-entidades (:query-fn state-map) entidad))
 
+(defmulti obtener-entidad-por-id (fn [state-map _ _] (:db-type state-map)))
 
-(defn- actualizar-entidad
-  [db-type qfn tabla campo valor id]
-  (log/info "Ejecutando sentencia en: " db-type)
-  (let [campo-sql (keyword campo)
-        campo-xtdb (keyword tabla campo)]
-    (if (= db-type "xtdb")
-      (datalog.queries/actualizar-entidad qfn id campo-xtdb valor)
-      (qfn :actualizar-registro! {:table (str tabla "s")
-                                  :updates {campo-sql valor}
-                                  :id id}))))
- 
+(defmethod obtener-entidad-por-id :sql
+  [state-map tabla id]
+  ((:query-fn state-map) :obtener-por-id {:table tabla
+                                          :id id}))
 
-(defn- borrar-entidad
-  [db-type qfn tabla id]
-  (log/info "Ejecutando sentencia en: " db-type)
-  (if (= db-type "xtdb")
-    (datalog.queries/borrar-por-id qfn id)
-    (qfn :borrar-por-id! {:table tabla
-                          :id id})))
+(defmethod obtener-entidad-por-id :xtdb
+  [state-map _ id]
+  (datalog.queries/obtener-por-id (:query-fn state-map) id))
 
+(defmulti actualizar-entidad (fn [state-map _ _ _ _] (:db-type state-map)))
+
+(defmethod actualizar-entidad :sql
+  [state-map tabla campo valor id]
+  (let [campo (keyword campo)]
+    ((:query-fn state-map) :actualizar-registro! {:table (str tabla "s")  
+                                                  :updates {campo valor}
+                                                  :id id})))
+
+(defmethod actualizar-entidad :xtdb
+  [state-map tabla campo valor id]
+  (let [campo (keyword tabla campo)]
+    (datalog.queries/actualizar-entidad (:query-fn state-map) id campo valor)))
+
+(defmulti borrar-entidad (fn [state-map _ _] (:db-type state-map)))
+
+(defmethod borrar-entidad :sql
+  [state-map tabla id]
+  ((:query-fn state-map) :borrar-por-id! {:table tabla
+                                          :id id}))
+
+(defmethod borrar-entidad :xtdb
+ [state-map _ id]
+ (datalog.queries/borrar-por-id (:query-fn state-map) id))
 
 ;; USUARIOS ;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn crear-usuario
-  "qfn => Query function \n
-   nombre, correo, cuenta, clave => string"
-  [db-type qfn nombre correo cuenta clave]
-  (if (= db-type "xtdb")
-    (datalog.queries/agregar-doc qfn (datalog.documents/crear-doc-usuario! nombre correo cuenta clave))
-    (qfn :crear-usuario! {:usuarios/nombre nombre
-                          :usuarios/correo correo
-                          :usuarios/cuenta cuenta
-                          :usuarios/clave clave})))
+(defmulti crear-usuario (fn [state-map _ _ _ _] (:db-type state-map)))
 
+(defmethod crear-usuario :sql
+  [state-map nombre correo cuenta clave]
+  ((:query-fn state-map) :crear-usuario! {:usuarios/nombre nombre
+                                          :usuarios/correo correo
+                                          :usuarios/cuenta cuenta
+                                          :usuarios/clave clave}))
+
+(defmethod crear-usuario :xtdb
+ [state-map nombre correo cuenta clave]
+ (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-usuario! nombre correo cuenta clave)))
 
 (defn obtener-usuarios
-  [db-type qfn]
-  (if (= db-type "xtdb")
-    (datalog.queries/obtener-todos-usuarios qfn)
-    (obtener-entidades db-type qfn "usuarios" :usuario/nombre)))
-
+  [state-map] 
+  (obtener-entidades state-map "usuarios" :usuario/nombre))
 
 (defn obtener-usuario-por-id
-  [db-type qfn id]
-  (if (= db-type "xtdb")
-    (datalog.queries/obtener-por-id qfn id)
-    (obtener-entidad-por-id db-type qfn "usuarios" id)))
-
+  [state-map id] 
+  (obtener-entidad-por-id state-map "usuarios" id))
 
 (defn actualizar-usuario
-  [db-type qfn campo valor id] 
-  (actualizar-entidad db-type qfn "usuario" campo valor id))
-
+  [state-map campo valor id] 
+  (actualizar-entidad  state-map "usuario" campo valor id))
 
 (defn borrar-usuario
-  [db-type qfn id]
-  (if (= db-type "xtdb")
-    (datalog.queries/borrar-por-id qfn id)
-    (borrar-entidad db-type qfn "usuarios" id)))
+  [state-map id] 
+  (borrar-entidad state-map "usuarios" id))
 
 
 ;; AUTORES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -535,15 +533,18 @@
   (datalog.documents/crear-doc-colecciones! "Coleccion coleccionable" (java.util.UUID/randomUUID))
   (xtdb.api/attribute-stats datalog.queries/node)
 
-  (defmulti get-entity :db-type)
-  
+  (ns-unmap *ns* 'get-entity)
+ 
+  (defmulti get-entity (fn [state-map _ _] (:db-type state-map)))
+    
   (defmethod get-entity :sql
-    [qfn tabla]
-    (qfn :obtener-todo {:table tabla}))
+    [state-map tabla _]
+    ((:query-fn state-map) :obtener-todo {:table tabla}))
   
   (defmethod get-entity :xtdb
-    [nodo entidad]
-    (datalog.queries/obtener-todas-las-entidades nodo entidad))
-
+    [state-map _ entidad]
+    (datalog.queries/obtener-todas-las-entidades (:query-fn state-map) entidad))
   
-  )
+  (get-entity (-> state/system :reitit.routes/api second) "" :usuario/nombre)
+  )   
+   

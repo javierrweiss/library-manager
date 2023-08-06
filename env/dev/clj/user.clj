@@ -61,7 +61,7 @@
   ;; Iniciar el sistema sin tocar ninguna conexión SQL 
   (go [:db-type/xtdb :repl/server :server/http :reitit.routes/api :reitit.routes/ui])   
   (go)               
-  (halt)     
+  (halt)      
   (reset)          
   (reset-all)     
   (clear) 

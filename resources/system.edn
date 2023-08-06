@@ -45,14 +45,7 @@
                          :responses {:not-modified-responses true
                                      :absolute-redirects true
                                      :content-types true
-                                     :default-charset "utf-8"}}}
- 
- [:db/conn :db-type/sql] {:conn #ig/ref :db.sql/query-fn
-                          :type "sql"}
-
- [:db/conn :db-type/xtdb] {:conn #ig/ref :db.xtdb/node
-                           :type "xtdb"}
-
+                                     :default-charset "utf-8"}}} 
  :db/testcontainers
  #profile {:test {}}
 
@@ -90,13 +83,14 @@
                                                :sync? true}}}
            :test {}
            :prod {}}
- 
- :reitit.routes/api 
+
+ :reitit.routes/api
  {:base-path "/api"
   :env #ig/ref :system/env
-  :metrics #ig/ref :metrics/prometheus 
-  :query-fn #ig/refset :db/conn}
- 
+  :metrics #ig/ref :metrics/prometheus                       
+  :db-type :xtdb                                                                   ;; cambiar a :sql para SQL
+  :query-fn #ig/ref :db.xtdb/node}                                                 ;; cambiar a :db.sql/query-fn para SQL                         
+
  :router/routes
  {:routes #ig/refset :reitit/routes}
 
