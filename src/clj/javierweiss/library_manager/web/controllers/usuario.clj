@@ -6,8 +6,7 @@
     [javierweiss.library-manager.web.routes.utils :as utils]
     [ring.util.http-response :as http-response]
     [hato.client :as hc]
-    [integrant.repl.state :as state]
-    [javierweiss.library-manager.web.controllers.usuario :as usuario]))
+    [integrant.repl.state :as state]))
 
 (defn crear-usuario
   [{{:keys [usuario_nombre usuario_cuenta usuario_correo usuario_clave]} :params :as req}] 

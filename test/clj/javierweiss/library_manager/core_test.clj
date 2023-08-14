@@ -23,70 +23,85 @@
 (use-fixtures :once (utils/system-fixture))
 
 (deftest pruebas_integracion_sql 
-  (let [q (:db.sql/query-fn (utils/system-state))
-        db "sql"
-        user (library-manager-db/crear-usuario db q "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434")
+  (let [state (let [state-map (utils/system-state)
+                    sql (:db.sql/query-fn state-map)
+                    final-map (second (:reitit.routes/api state-map))]
+                (assoc final-map :query-fn sql :db-type :sql)) 
+        user (library-manager-db/crear-usuario state "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434") 
         id-u (:id (first user))
-        author (library-manager-db/crear-autor db q "Rosario" "Millán")
+        author (library-manager-db/crear-autor state "Rosario" "Millán")
         id-au (:id (first author))
-        ref (library-manager-db/crear-referencia db q "Libro" "Los años de la locura" "2009" "Valdemoros" "Madrid" nil nil nil [id-au])
+        ref (library-manager-db/crear-referencia state "Libro" "Los años de la locura" "2009" "Valdemoros" "Madrid" nil nil nil [id-au])
         id-ref (:referencia ref) 
-        comentario (library-manager-db/crear-comentario db q "Este es un comentario muy juicioso" "120-156" "linux mercado opengl graalvm" id-ref id-u)
+        comentario (library-manager-db/crear-comentario state "Este es un comentario muy juicioso" "120-156" "linux mercado opengl graalvm" id-ref id-u)
         id-com (:id (first comentario))
-        cita (library-manager-db/crear-cita db q id-ref "Los azulejos son azules..." "120" id-u)
+        cita (library-manager-db/crear-cita state id-ref "Los azulejos son azules..." "120" id-u)
         id-cita (:id (first cita))
-        coleccion (library-manager-db/crear-coleccion db q "Ciencias sociales" id-ref)
+        coleccion (library-manager-db/crear-coleccion state "Ciencias sociales" id-ref)
         id-col (:coleccion coleccion)
-        biblioteca (library-manager-db/crear-biblioteca db q id-u "Biblioteca Mayor Simón Bolívar" id-col)
+        biblioteca (library-manager-db/crear-biblioteca state id-u "Biblioteca Mayor Simón Bolívar" id-col)
         id-biblioteca (:biblioteca biblioteca)]
     (testing "Crea usuario"
       (is (uuid? id-u)))
     (testing "Actualiza usuario" 
-      (is (= 1 (library-manager-db/actualizar-usuario db q "cuenta" "juliamarin_90" id-u))))
+      (is (= 1 (library-manager-db/actualizar-usuario state "cuenta" "juliamarin_90" id-u))))
     (testing "Crea autor"
       (is (uuid? id-au)))
     (testing "Actualiza autor"
-      (is (= 1 (library-manager-db/actualizar-autor db q :apellidos "Linarez Alcántara" id-au))))
+      (is (= 1 (library-manager-db/actualizar-autor state :apellidos "Linarez Alcántara" id-au))))
     (testing "Crea referencia"
       (is (uuid? id-ref)))
     (testing "Actualiza referencia"
-      (is (= 1 (library-manager-db/actualizar-referencia db q :editorial "La Luz" id-ref))))
+      (is (= 1 (library-manager-db/actualizar-referencia state :editorial "La Luz" id-ref))))
     (testing "Crea publicaciones"
       (is (= 1 (count (:publicaciones ref)))))
     (testing "Crea comentario"
       (is (uuid? id-com)))
     (testing "Actualiza comentario"
-      (is (= 1 (library-manager-db/actualizar-comentario db q :comentario "Comente lo que comente, siempre hago un comentario" id-com))))
+      (is (= 1 (library-manager-db/actualizar-comentario state :comentario "Comente lo que comente, siempre hago un comentario" id-com))))
     (testing "Crea cita"
       (is (uuid? id-cita)))
     (testing "Actualiza cita"
-      (is (= 1 (library-manager-db/actualizar-cita db q :paginas "19" id-cita))))
+      (is (= 1 (library-manager-db/actualizar-cita state :paginas "19" id-cita))))
     (testing "Crear colección"
       (is (uuid? id-col)))
     (testing "Actualizar coleccion"
-      (is (= 1 (library-manager-db/actualizar-coleccion db q :nombre_coll "Coleccion nueva" id-col))))
+      (is (= 1 (library-manager-db/actualizar-coleccion state :nombre_coll "Coleccion nueva" id-col))))
     (testing "Crear biblioteca"
       (is (uuid? id-biblioteca)))
     (testing "Actualizar biblioteca"
-      (is (= 1 (library-manager-db/actualizar-biblioteca db q :nombre_biblioteca "Biblioteca de la Lora" id-biblioteca))))
+      (is (= 1 (library-manager-db/actualizar-biblioteca state :nombre_biblioteca "Biblioteca de la Lora" id-biblioteca))))
     (testing "Eliminar biblioteca"
-      (is (= 1 (library-manager-db/borrar-biblioteca db q id-biblioteca))))
+      (is (= 1 (library-manager-db/borrar-biblioteca state id-biblioteca))))
     (testing "Eliminar coleccion"
-      (is (= 1 (library-manager-db/borrar-coleccion db q id-col))))
+      (is (= 1 (library-manager-db/borrar-coleccion state id-col))))
     (testing "Elimina cita"
-      (is (= 1 (library-manager-db/borrar-cita db q id-cita))))
+      (is (= 1 (library-manager-db/borrar-cita state id-cita))))
     (testing "Elimina comentario"
-      (is (= 1 (library-manager-db/borrar-comentario db q id-com))))
+      (is (= 1 (library-manager-db/borrar-comentario state id-com))))
     (testing "Elimina referencia"
-      (is (= 1 (library-manager-db/borrar-referencia db q id-ref))))
+      (is (= 1 (library-manager-db/borrar-referencia state id-ref))))
     (testing "Elimina usuario" 
-      (is (= 1 (library-manager-db/borrar-usuario db q id-u))))
+      (is (= 1 (library-manager-db/borrar-usuario state id-u))))
     (testing "Elimina autor"
-      (is (= 1 (library-manager-db/borrar-autor db q id-au))))))
+      (is (= 1 (library-manager-db/borrar-autor state id-au))))))
  
- 
+  
 (comment
-  (tap> (utils/system-state))
+  (def state (let [state-map (utils/system-state)
+                   sql (:db.sql/query-fn state-map)
+                   final-map (second (:reitit.routes/api state-map))] 
+               (assoc final-map :query-fn sql :db-type :sql)))  
+  (def state-xtdb (utils/system-state))
+  
+  (library-manager-db/crear-usuario state "Julio Moncada" "juliomoncada@gmail.com" "marsein324" "Ksfws w434")
+  (library-manager-db/crear-usuario (-> (utils/system-state) :router/routes first second) "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434")
+  (state :crear-usuario! {:usuarios/nombre "Miguel Blanco"
+                          :usuarios/correo "miguelblanco@gmail.com"
+                          :usuarios/cuenta "migublan22"
+                          :usuarios/clave "clavechucuta"})
+  (state :obtener-todo {:table "usuarios"})
+  (-> (utils/system-state) :router/routes first second :db-type)
   (:db.sql/connection (utils/system-state))
   (:db/type (utils/system-state))
   (:db.sql/query-fn (utils/system-fixture))
