@@ -408,7 +408,7 @@
 
 (defn actualizar-biblioteca
   [state-map campo valor id] 
-  (actualizar-entidad state-map "bibliotecas" campo valor id))
+  (actualizar-entidad state-map "biblioteca" campo valor id))
 
 (defn borrar-biblioteca
   [state-map id] 
