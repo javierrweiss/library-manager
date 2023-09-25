@@ -163,8 +163,7 @@
 (defmethod crear-referencia :sql
   [state-map tipo_publicacion titulo ano editorial ciudad volumen nombre_revista nombre_libro autores]
   (let [qfn (:query-fn state-map)
-        ref-id (-> (:crear-referencia! qfn {:referencia/autores autores
-                                            :referencia/titulo titulo
+        ref-id (-> (qfn :crear-referencia! {:referencia/titulo titulo
                                             :referencia/ano ano
                                             :referencia/editorial editorial
                                             :referencia/ciudad ciudad
@@ -423,16 +422,49 @@
   :dbg
   (keys state/system)
   (:system/env state/system)
-  (def q (-> (state/system [:db/conn :db-type/xtdb]) :conn))
-  (def q-sql (-> (state/system [:db/conn :db-type/sql]) :conn)) 
-  (crear-usuario "xtdb" q "José Marín" "marino@gmail.com" "el_marine" "232jk sds **") 
-  (crear-autor "xtdb" q "Julio César" "Fabregas") 
-  (crear-referencia "xtdb" q "Libro" "Los años de Valcarce" "2009" "El Farolito" "Madrid" nil nil nil [#uuid "ec9d24d5-2ca1-45d3-b97b-32d79c6619ba"])
+  (def q (:reitit.routes/api state/system))
+  (def q-sql (assoc (second (:reitit.routes/api state/system))
+                    :query-fn (:db.sql/query-fn state/system) 
+                    :db-type :sql))
+  (crear-usuario q-sql "Lino Mann" "linomann@gmail.com" "linomann" "4645454")
+  (crear-autor q-sql "Juana" "Mariana")
+  (crear-referencia q-sql 
+                    "Libro" 
+                    "Los años de Valcarce" 
+                    "2009" 
+                    "El Farolito" 
+                    "Madrid" 
+                    nil 
+                    nil
+                    nil
+                    [#uuid "4152e1ae-2a9e-4720-af20-3fcd1ff8d275"])
+  (try
+    ((:db.sql/query-fn state/system) :crear-referencia!  {:referencia/titulo "Las arpas"
+                                                          :referencia/ano "2021"
+                                                          :referencia/editorial "Aienadas S.A."
+                                                          :referencia/ciudad "Caracas"
+                                                          :referencia/tipo_publicacion "Libro"
+                                                          :referencia/volumen nil
+                                                          :referencia/nombre_libro "Las carpas"
+                                                          :referencia/nombre_revista nil})
+    (catch java.sql.SQLException e (println (.getMessage e))))
+  
+  (:crear-usuario! (:db.sql/query-fn state/system) {:usuario/correo "jrivero@gmail.com"
+                                                    :usuario/cuenta "jrivero"
+                                                    :usuario/nombre "Juliana Rivero"
+                                                    :usuario/clave "Mi super keyword"})
+  
+  (obtener-usuarios q-sql)
+  (obtener-autores q-sql)
+
+  (tap> (obtener-referencias q-sql))
+  (count (obtener-referencias q-sql))
+
   :ex
   (tap>
    (crear-coleccion q "Coleccion Animal" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748"))
-  (crear-coleccion q "Coleccion horizontes" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748" (java.util.UUID/randomUUID)) 
-  (obtener-publicaciones  q) 
+  (crear-coleccion q "Coleccion horizontes" #uuid "dc79fd79-e872-448b-b1bf-4b0bd1c2f748" (java.util.UUID/randomUUID))
+  (obtener-publicaciones  q)
   (into [] (for [autor [#uuid "2317eb29-30c0-4c7a-9b90-99ccdad4b0f4"
                         #uuid "97d8cfe9-f260-4657-b483-05ad52d6a5eb"
                         #uuid "9f0a9109-cb33-4765-93e7-87d0f92cd838"]]
@@ -440,21 +472,21 @@
                  first
                  :id)))
   (datalog.documents/crear-doc-bibliotecas! (java.util.UUID/randomUUID) "Biblioteca mayor" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID))
-  (datalog.documents/crear-doc-colecciones! "Coleccion coleccionable" (java.util.UUID/randomUUID)) 
+  (datalog.documents/crear-doc-colecciones! "Coleccion coleccionable" (java.util.UUID/randomUUID))
 
   (ns-unmap *ns* 'get-entity)
- 
+
   (defmulti get-entity (fn [state-map _ _] (:db-type state-map)))
-    
+
   (defmethod get-entity :sql
     [state-map tabla _]
     ((:query-fn state-map) :obtener-todo {:table tabla}))
-  
+
   (defmethod get-entity :xtdb
     [state-map _ entidad]
     (datalog.queries/obtener-todas-las-entidades (:query-fn state-map) entidad))
-  
+
   (get-entity (-> state/system :reitit.routes/api second) "" :usuario/nombre)
-  
+
   )   
    

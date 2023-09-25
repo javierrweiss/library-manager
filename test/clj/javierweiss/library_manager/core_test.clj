@@ -91,10 +91,21 @@
   (def state (let [state-map (utils/system-state)
                    sql (:db.sql/query-fn state-map)
                    final-map (second (:reitit.routes/api state-map))] 
-               (assoc final-map :query-fn sql :db-type :sql)))  
+               (assoc final-map :query-fn sql :db-type :sql)))
+  state
   (def state-xtdb (utils/system-state))
   
-  (library-manager-db/crear-usuario state "Julio Moncada" "juliomoncada@gmail.com" "marsein324" "Ksfws w434")
+  (library-manager-db/crear-usuario state "July Mcada" "julimcada@gmail.com" "jlui324" "Ksfws w434")
+  (library-manager-db/crear-autor state "Miro" "Mirón")
+  (library-manager-db/crear-referencia state 
+                                       "Libro" 
+                                       "El viejo y el gato" "2000" 
+                                       "Editorial Samoza" 
+                                       "Buenos Aires" 
+                                       nil 
+                                       nil
+                                       nil
+                                       [#uuid "410fd2f3-7b60-467c-bc21-d7effcc0de67"])
   (library-manager-db/crear-usuario (-> (utils/system-state) :router/routes first second) "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434")
   (state :crear-usuario! {:usuarios/nombre "Miguel Blanco"
                           :usuarios/correo "miguelblanco@gmail.com"

@@ -63,8 +63,8 @@
   ;; Iniciar el sistema sin tocar ninguna conexión SQL 
   (go [:db-type/xtdb :repl/server :server/http :reitit.routes/api :reitit.routes/ui])
   (go) 
-  (halt) 
-  (reset) 
+  (halt)  
+  (reset)   
   (reset-all)
   (clear)
   (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
@@ -120,10 +120,19 @@
   (consulta :crear-autor! {:autores/nombres "Leonhard"
                            :autores/apellidos "Bech"})
 
-  (consulta :crear-referencia! {:referencia/autores #uuid "961469a7-ff35-47a7-b136-9a807a7666a9"
+  (query-fn :crear-referencia! {:referencia/autores #uuid "961469a7-ff35-47a7-b136-9a807a7666a9"
                                 :referencia/titulo "Cosas veredes"
                                 :referencia/ano "1999"
                                 :referencia/editorial "El Bueno"
+                                :referencia/ciudad "Berlin"
+                                :referencia/tipo_publicacion "Libro"
+                                :referencia/volumen nil
+                                :referencia/nombre_libro nil
+                                :referencia/nombre_revista nil})
+  
+  (query-fn :crear-referencia! {:referencia/titulo "Tito Lobo"
+                                :referencia/ano "2011"
+                                :referencia/editorial "Lora Editorial"
                                 :referencia/ciudad "Berlin"
                                 :referencia/tipo_publicacion "Libro"
                                 :referencia/volumen nil
