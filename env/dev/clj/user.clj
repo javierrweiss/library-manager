@@ -1,17 +1,34 @@
 (ns user
   "Userspace functions you can run by default in your local REPL."
-  (:require 
-    [clojure.spec.alpha :as s]
-    [clojure.tools.namespace.repl :as repl]
-    [criterium.core :as c]                                  ;; benchmarking
-    [expound.alpha :as expound]
-    [integrant.core :as ig]
-    [integrant.repl :refer [clear go halt prep init reset reset-all]]
-    [integrant.repl.state :as state]
-    [kit.api :as kit]
-    [lambdaisland.classpath.watch-deps :as watch-deps]      ;; hot loading for deps 
-    [javierweiss.library-manager.core :refer [start-app]])) ;; Si falta esta dependencia, no arranca el repl
- 
+  (:require
+   [clojure.spec.alpha :as s]
+   [clojure.tools.namespace.repl :as repl]
+   [criterium.core :as c]                                  ;; benchmarking
+   [expound.alpha :as expound]
+   [integrant.core :as ig]
+   [integrant.repl :refer [clear go halt prep init reset reset-all]]
+   [integrant.repl.state :as state]
+   [kit.api :as kit]
+   [lambdaisland.classpath.watch-deps :as watch-deps]      ;; hot loading for deps 
+   [javierweiss.library-manager.core :refer [start-app]]
+   [clj-test-containers.core :as tc])
+  (:import [org.testcontainers.containers CockroachContainer])) ;; Si falta esta dependencia, no arranca el repl)
+
+
+(defmethod ig/init-key :db/testcontainers [_ m]
+  (let [container (tc/init {:container (CockroachContainer. "cockroachdb/cockroach")
+                            :exposed-ports [26257]})
+        iniciado (tc/start! container)]
+    (merge m {:jdbc-url (.getJdbcUrl (:container iniciado))
+              :user (.getUsername (:container iniciado))
+              :password (.getPassword (:container iniciado))
+              :container container})))
+
+(defmethod ig/halt-key! :db/testcontainers
+  [_ {:keys [container]}]
+  (tc/stop! container))
+
+
 ;; uncomment to enable hot loading for deps 
 (watch-deps/start! {:aliases [:dev :test]})
 
@@ -49,29 +66,30 @@
 (defn migrate []
   (migratus.core/migrate (:db.sql/migrations state/system)))
 
-(def query-fn (:db.sql/query-fn state/system)) 
+(def query-fn (:db.sql/query-fn state/system))
 
 (require '[portal.api :as p])
 (def p (p/open {:launcher :vs-code}))
 (add-tap #'p/submit)
 
 (comment
-  
-  (test-prep!)
+
+  (let [prep-fn (test-prep!)]
+    (prep-fn))
   (dev-prep!)
   (init)
   ;; Iniciar el sistema sin tocar ninguna conexión SQL 
   (go [:db-type/xtdb :repl/server :server/http :reitit.routes/api :reitit.routes/ui])
-  (go) 
-  (halt)  
-  (reset)   
+  (go)
+  (halt)
+  (reset)
   (reset-all)
   (clear)
   (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)
   (:db.sql/connection state/system)
-  
-  (query-fn :obtener-referencias-y-publicaciones) 
+
+  (query-fn :obtener-referencias-y-publicaciones)
   (query-fn :obtener-todo {:table "usuarios"})
 
   ;;Crear las tablas en el orden correcto y sin que que solape el timestamp
@@ -129,7 +147,7 @@
                                 :referencia/volumen nil
                                 :referencia/nombre_libro nil
                                 :referencia/nombre_revista nil})
-  
+
   (query-fn :crear-referencia! {:referencia/titulo "Tito Lobo"
                                 :referencia/ano "2011"
                                 :referencia/editorial "Lora Editorial"
@@ -176,6 +194,4 @@
 
   :bibliotecas/colecciones #uuid "20a13609-669c-4179-9429-f54f1a571b06"
 
-  (consulta :obtener-todo {:table "citas"})
-
-  )
+  (consulta :obtener-todo {:table "citas"}))

@@ -55,8 +55,10 @@
   [nodo doc]
   {:pre [(spec/valid? map? doc)]}
   (try
-    (xt/submit-tx nodo [[::xt/put doc]])
-    (xt/sync nodo)
+    (let [id (:xt/id doc)]
+      (xt/submit-tx nodo [[::xt/put doc]])
+      (xt/sync nodo)
+      id) 
     (catch AssertionError e (.getMessage e))
     (catch IllegalArgumentException e (.getMessage e))
     (catch Exception e (.getMessage e))))
@@ -144,17 +146,24 @@
             :where [[?comentario :comentario/comentario]]}))
 
 
-(comment 
-  (def node (:conn (state/system [:db/conn :db-type/xtdb]))) 
+(comment   
+  (def node (:db.xtdb/node state/system)) 
+  (def t (xt/submit-tx node 
+                       [[::xt/put {:xt/id (java.util.UUID/randomUUID)
+                                   :nombre "Julia Abrañam"
+                                   :dni 22533334}]]))
+  (keys t)
+  (::tx-id t)
   (tap> (keys (xt/attribute-stats node)))
-  (actualizar-entidad node #uuid "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1" :nombre "Lino Clemente") 
+ (map? (actualizar-entidad node #uuid "4eab2845-d0dc-4b91-9273-7fc2a69a314c" :nombre "Lino Albornoz")) 
   (xt/status node) 
   (xt/status node)
   (stop-xtdb! node)
   (type (type (:db.xtdb/node state/system)))
   (xt/attribute-stats node)
   (keys (xt/attribute-stats node))
-  (documents/crear-doc-usuario!  123 'alfa "caripe" :perro)
+  (agregar-doc node (documents/crear-doc-usuario! "Marcos Marcano" "marcossrcano@gmail.com" "mardsdssdio" "fddfdsd 243"))
+  (actualizar-entidad node 32 :nombre "Karina Mango")
   (documents/crear-doc-usuario!  "Mario" "darthvader2323" "mariobros@gmail.com" "6556as asd")
   (documents/crear-doc-usuario! "Martin Palermo" "martpaler" "martinpalermo@gmail.com" "Gooool!")
   (documents/crear-doc-referencia! "Libro" "Los origenes del totalitarismo" "2006" "Taurus" "Madrid")
@@ -370,10 +379,12 @@
   (q node '{:find [(pull ?ref [*])] 
             :where [[?ref :referencia/tipo_publicacion]]})
 
-  (obtener-por-id node #uuid "76fa1e29-e59d-46df-8225-56aec7a8c84c")
+  (def res (obtener-por-id node #uuid "4eab2845-d0dc-4b91-9273-7fc2a69a314c"))
 
-  (borrar-por-id node #uuid "f677dcce-bb79-4ec4-afdb-a4197482e68a")
+  (ffirst res)
 
+  (borrar-por-id node #uuid "4eab2845-d0dc-4b91-9273-7fc2a69a314c")
+  
   (xt/entity (xt/db node) #uuid "76fa1e29-e59d-46df-8225-56aec7a8c84c")
 
   (actualizar-entidad node #uuid "76fa1e29-e59d-46df-8225-56aec7a8c84c" :autor/apellidos "Galindo")

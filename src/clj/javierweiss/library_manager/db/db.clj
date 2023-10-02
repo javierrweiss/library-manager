@@ -5,7 +5,8 @@
    [integrant.repl.state :as state]
    [javierweiss.library-manager.datalog.documents :as datalog.documents]
    [javierweiss.library-manager.datalog.queries :as datalog.queries]
-   [clojure.string :as s]))
+   [clojure.string :as s]
+   [clojure.test :as t]))
 
 ;; CONFIGURACION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -52,7 +53,9 @@
 
 (defmethod actualizar-entidad :xtdb
   [state-map tabla campo valor id]
-  (let [campo (keyword tabla campo)]
+  (let [t (if (keyword? tabla) (-> tabla symbol str) tabla)
+        c (if (keyword? campo) (-> campo symbol str) campo)
+        campo (keyword t c)]
     (datalog.queries/actualizar-entidad (:query-fn state-map) id campo valor)))
 
 (defmulti borrar-entidad (fn [state-map _ _] (:db-type state-map)))
@@ -395,7 +398,7 @@
 
 (defmethod crear-biblioteca :xtdb
  [state-map usuario nombre_biblioteca & colecciones]
- (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-bibliotecas! usuario nombre_biblioteca (vec colecciones))))
+ (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-bibliotecas! usuario nombre_biblioteca colecciones)))
 
 (defn obtener-bibliotecas
   [state-map] 
@@ -417,17 +420,22 @@
 
 
 (comment
+  (keyword :er)
+  (keyword "qw" "df")
   :tut/basics
   :tut/next
   :dbg
   (keys state/system)
   (:system/env state/system)
-  (def q (:reitit.routes/api state/system))
+  (def q (second (:reitit.routes/api state/system)))
   (def q-sql (assoc (second (:reitit.routes/api state/system))
                     :query-fn (:db.sql/query-fn state/system) 
                     :db-type :sql))
-  (crear-usuario q-sql "Lino Mann" "linomann@gmail.com" "linomann" "4645454")
-  (crear-autor q-sql "Juana" "Mariana")
+  (tap> q) 
+  (crear-usuario q-sql "Lino Mann" "linomann@gmail.com" "linomann" "4645454") 
+  (def u (crear-usuario q "Lino Mann" "linomann@gmail.com" "linomann" "4645454"))
+  (actualizar-usuario q "nombre" "Mario Mariana" #uuid "1b59d86a-dea9-45b2-84c4-9a67677e7271")
+  (crear-autor q-sql "Juana" "Mariana") 
   (crear-referencia q-sql 
                     "Libro" 
                     "Los años de Valcarce" 

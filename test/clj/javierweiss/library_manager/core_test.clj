@@ -4,17 +4,18 @@
    [clojure.test :refer :all]
    [integrant.core :as ig]
    [clj-test-containers.core :as tc]
-   [javierweiss.library-manager.db.db :as library-manager-db])
+   [javierweiss.library-manager.db.db :as library-manager-db]
+   [xtdb.api :as xtdb])
   (:import [org.testcontainers.containers CockroachContainer]))
 
-(defmethod ig/init-key :db/testcontainers [_ _]
+(defmethod ig/init-key :db/testcontainers [_ m]
   (let [container (tc/init {:container (CockroachContainer. "cockroachdb/cockroach")
                             :exposed-ports [26257]})
         iniciado (tc/start! container)]
-    {:jdbc-url (.getJdbcUrl (:container iniciado))
-     :user (.getUsername (:container iniciado))
-     :password (.getPassword (:container iniciado))
-     :container container}))
+    (merge m {:jdbc-url (.getJdbcUrl (:container iniciado))
+              :user (.getUsername (:container iniciado))
+              :password (.getPassword (:container iniciado))
+              :container container})))
 
 (defmethod ig/halt-key! :db/testcontainers
   [_ {:keys [container]}]
@@ -86,92 +87,69 @@
     (testing "Elimina autor"
       (is (= 1 (library-manager-db/borrar-autor state id-au))))))
  
-  
+   
+(deftest pruebas-integracion-xtdb
+  (let [state (second (:reitit.routes/api (utils/system-state)))
+        user (library-manager-db/crear-usuario state "July Tovar" "julitovar@gmail.com" "julitcsa55" "dfd $$$ 22") 
+        author (library-manager-db/crear-autor state "Juliana" "Marik") 
+        ref (library-manager-db/crear-referencia state "Libro" "Clojure for Data Science" "2023" "XXX" "Madrid" nil nil nil [author]) 
+        comentario (library-manager-db/crear-comentario state "Este es un comentario muy juicioso..." "123-156" "caras largas google dolar" ref user) 
+        cita (library-manager-db/crear-cita state ref "Las caras largas son más largas que las largas" "120" user) 
+        coleccion (library-manager-db/crear-coleccion state "Ciencias de la Computación" ref) 
+        biblioteca (library-manager-db/crear-biblioteca state user "Biblioteca del Saber" coleccion)]
+    (testing "Crea usuario"
+      (is (uuid? user)))
+    (testing "Actualiza usuario"
+      (is (map? (library-manager-db/actualizar-usuario state "cuenta" "juliamarinppp" user))))
+    (testing "Crea autor"
+      (is (uuid? author)))
+    (testing "Actualiza autor"
+      (is (map? (library-manager-db/actualizar-autor state :apellidos "Franco Rivero" author))))
+    (testing "Crea referencia"
+      (is (uuid? ref)))
+    (testing "Actualiza referencia"
+      (is (map? (library-manager-db/actualizar-referencia state :editorial "Schumpeter & Bros" ref)))) 
+    (testing "Crea comentario"
+      (is (uuid? comentario)))
+    (testing "Actualiza comentario"
+      (is (map? (library-manager-db/actualizar-comentario state :comentario "Comente lo que comente, siempre hago un comentario" comentario))))
+    (testing "Crea cita"
+      (is (uuid? cita)))
+    (testing "Actualiza cita"
+      (is (map? (library-manager-db/actualizar-cita state :paginas "190" cita))))
+    (testing "Crear colección"
+      (is (uuid? coleccion)))
+    (testing "Actualizar coleccion"
+      (is (map? (library-manager-db/actualizar-coleccion state :nombre_coll "Coleccion vieja" coleccion))))
+    (testing "Crear biblioteca"
+      (is (uuid? biblioteca)))
+    (testing "Actualizar biblioteca"
+      (is (map? (library-manager-db/actualizar-biblioteca state :nombre_biblioteca "Biblioteca bibliófila" biblioteca))))
+    (testing "Eliminar biblioteca"
+      (is (instance? java.util.Date (library-manager-db/borrar-biblioteca state biblioteca))))
+    (testing "Eliminar coleccion"
+      (is (instance? java.util.Date (library-manager-db/borrar-coleccion state coleccion))))
+    (testing "Elimina cita"
+      (is (instance? java.util.Date (library-manager-db/borrar-cita state cita))))
+    (testing "Elimina comentario"
+      (is (instance? java.util.Date (library-manager-db/borrar-comentario state comentario))))
+    (testing "Elimina referencia"
+      (is (instance? java.util.Date (library-manager-db/borrar-referencia state ref))))
+    (testing "Elimina usuario"
+      (is (instance? java.util.Date (library-manager-db/borrar-usuario state user))))
+    (testing "Elimina autor"
+      (is (instance? java.util.Date (library-manager-db/borrar-autor state author)))))) 
+
+
 (comment
-  (def state (let [state-map (utils/system-state)
-                   sql (:db.sql/query-fn state-map)
-                   final-map (second (:reitit.routes/api state-map))] 
-               (assoc final-map :query-fn sql :db-type :sql)))
-  state
-  (def state-xtdb (utils/system-state))
-  
-  (library-manager-db/crear-usuario state "July Mcada" "julimcada@gmail.com" "jlui324" "Ksfws w434")
-  (library-manager-db/crear-autor state "Miro" "Mirón")
-  (library-manager-db/crear-referencia state 
-                                       "Libro" 
-                                       "El viejo y el gato" "2000" 
-                                       "Editorial Samoza" 
-                                       "Buenos Aires" 
-                                       nil 
-                                       nil
-                                       nil
-                                       [#uuid "410fd2f3-7b60-467c-bc21-d7effcc0de67"])
-  (library-manager-db/crear-usuario (-> (utils/system-state) :router/routes first second) "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434")
-  (state :crear-usuario! {:usuarios/nombre "Miguel Blanco"
-                          :usuarios/correo "miguelblanco@gmail.com"
-                          :usuarios/cuenta "migublan22"
-                          :usuarios/clave "clavechucuta"})
-  (state :obtener-todo {:table "usuarios"})
-  (-> (utils/system-state) :router/routes first second :db-type)
-  (:db.sql/connection (utils/system-state))
-  (:db/type (utils/system-state))
-  (:db.sql/query-fn (utils/system-fixture))
-  (def qn (:db.sql/query-fn (utils/system-state)))
-  (tap> (utils/system-state))
-  (def test-user (library-manager-db/crear-usuario "sql" qn "Pedro Montes" "pedromontes@gmail.com" "montes324" "Ksfws 434"))
-  (tap> test-user)
-  (def test-aut [(library-manager-db/crear-autor "sql" qn "Pedro" "Camoranesi")
-                 (library-manager-db/crear-autor "sql" qn "Fulano" "DeTal")
-                 (library-manager-db/crear-autor "sql" qn "Pilin" "Leon")])
-  (tap> test-aut)
-  (map :xt/id test-aut)
-  (def test-ref (library-manager-db/crear-referencia
-                 "sql"
-                 qn
-                 "Libro"
-                 "Los perros"
-                 "2010"
-                 "Cachafaz"
-                 "Pilar"
-                 nil
-                 nil
-                 nil
-                 [#uuid "2317eb29-30c0-4c7a-9b90-99ccdad4b0f4"
-                  #uuid "97d8cfe9-f260-4657-b483-05ad52d6a5eb"
-                  #uuid "9f0a9109-cb33-4765-93e7-87d0f92cd838"]))
-  (library-manager-db/crear-referencia
-   "sql"
-   qn
-   "Libro"
-   "Los perros"
-   "2010"
-   "Cachafaz"
-   "Pilar"
-   nil
-   nil
-   nil
-   (vec (map :xt/id test-aut)))
-
-  (library-manager-db/obtener-autores "sql" qn)
-
-  (tap> test-ref)
-  (tap> test-aut)
-  (:id (first test-user))
-  (->> (library-manager-db/obtener-usuarios "sql" qn)
-       first
-       :id
-       (library-manager-db/borrar-usuario "sql" qn))
-
-  (->> (library-manager-db/obtener-referencias "sql" qn)
-       (map :id)
-       (map #(library-manager-db/borrar-referencia "sql" qn %)))
-
-
-  (as-> (map :id (library-manager-db/obtener-autores "sql" qn)) au
-    (map #(library-manager-db/borrar-autor "sql" qn %) au))
-
-
+  :dbg 
+  (require '[xtdb.api :as xtdb])
+  (def state-xtdb (second (:reitit.routes/api (utils/system-state)))) 
+  (library-manager-db/crear-usuario state-xtdb "Marco Tovar" "marcotovar@gmail.com" "marcossd_tcsa55" "d99fd $$$ 22")
+  (xtdb/latest-completed-tx (:query-fn state-xtdb)) 
+  (library-manager-db/crear-usuario (-> (utils/system-state) :router/routes first second) "Julia Marín" "juliamarin@gmail.com" "marin324" "Ksfws 434") 
   (tap> (run-test pruebas_integracion_sql))
   (run-tests)
+  (run-test pruebas-integracion-xtdb)
   )
  

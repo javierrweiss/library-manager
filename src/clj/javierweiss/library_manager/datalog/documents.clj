@@ -77,11 +77,11 @@
   [usuario nombre_biblioteca & colecciones]
   {:pre [(spec/valid? string? nombre_biblioteca)
          (spec/valid? uuid? usuario)
-         (spec/valid? :schema/ids colecciones)]}
+         (spec/valid? :schema/ids (-> colecciones flatten vec))]}
   {:xt/id (java.util.UUID/randomUUID)
    :biblioteca/usuario usuario
    :biblioteca/nombre_biblioteca nombre_biblioteca
-   :biblioteca/colecciones (vec colecciones)})
+   :biblioteca/colecciones (-> colecciones flatten vec)})
 
 
 (defn crear-doc-colecciones!
@@ -109,6 +109,8 @@
   (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) '((java.util.UUID/randomUUID)))
 
   (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid?)) [(java.util.UUID/randomUUID)])
+
+  (spec/valid? :schema/ids (list (java.util.UUID/randomUUID) (java.util.UUID/randomUUID) (java.util.UUID/randomUUID)))
 
   (spec/valid? :schema/correo "javier@hotmail.com")
   )

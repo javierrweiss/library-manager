@@ -81,7 +81,16 @@
                  :xtdb/index-store {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
                                                :db-dir "data/dev/index-store"
                                                :sync? true}}}
-           :test {}
+           :test {:xtdb.http-server/server {:port 3300}
+                  :xtdb/tx-log {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
+                                           :db-dir "data/test/tx-log"
+                                           :sync? true}}
+                  :xtdb/document-store {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
+                                                   :db-dir "data/test/doc-store"
+                                                   :sync? true}}
+                  :xtdb/index-store {:kv-store {:xtdb/module xtdb.rocksdb/->kv-store
+                                                :db-dir "data/test/index-store"
+                                                :sync? true}}}
            :prod {}}
 
  :db/type :xtdb                                                                    ;; cambiar a :sql para SQL
