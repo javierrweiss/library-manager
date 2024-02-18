@@ -3,7 +3,7 @@
     [integrant.core :as ig]
     [javierweiss.library-manager.web.middleware.exception :as exception]
     [javierweiss.library-manager.web.middleware.formats :as formats]
-    [javierweiss.library-manager.web.views.hello :as hello]
+    [javierweiss.library-manager.web.views.registro-usuario :as hello]
     [reitit.ring.middleware.muuntaja :as muuntaja]
     [reitit.ring.middleware.parameters :as parameters]))
 

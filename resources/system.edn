@@ -92,6 +92,8 @@
                                                 :db-dir "data/test/index-store"
                                                 :sync? true}}}
            :prod {}}
+ 
+ ;; Esto es algo que conviene controlarlo desde el archivo de configuración, en vez de desde el código. 
 
  :db/type :xtdb                                                                    ;; cambiar a :sql para SQL
 

@@ -12,89 +12,82 @@
   [{{:keys [usuario_nombre usuario_cuenta usuario_correo usuario_clave]} :params :as req}] 
   (tap> req)
   (log/debug "Estos son los params " (:params req)) 
-  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+  (let [q (utils/route-data req)]
     (try
       (log/debug "Creando usuario con los parámetros " usuario_nombre usuario_cuenta usuario_correo)
       (if (some nil? [usuario_nombre usuario_cuenta usuario_correo usuario_clave])
         (http-response/bad-request "Ningún campo debe quedar vacío")
-        (do (db/crear-usuario type conn usuario_nombre usuario_correo usuario_cuenta usuario_clave)
-            (http-response/ok "Registro enviado con éxito")))
-      (catch Exception e
-        (log/error "Error al crear usuario")
-        (exception/handler (.getMessage e) 0 e req)))))
+        (do (db/crear-usuario q usuario_nombre usuario_correo usuario_cuenta usuario_clave)
+            (http-response/created "Registro creado con éxito")))
+      (catch Exception e 
+        (exception/handler "Error al crear usuario" 500 e req)))))
 
 
 (defn actualizar-nombre-usuario
   [{{:keys [id usuario_nombre]} :params :as req}] 
   (log/debug "Estos son los params " (:params req))
-  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+  (let [q (utils/route-data req)]
     (try
-      (db/actualizar-usuario type conn 'nombre usuario_nombre (java.util.UUID/fromString id))
+      (db/actualizar-usuario q :nombre usuario_nombre (java.util.UUID/fromString id))
       (http-response/ok "Nombre de usuario cambiado con éxito")
-      (catch Exception e
-           (log/error "Error al actualizar usuario")
-           (exception/handler (.getMessage e) 0 e req)))))
+      (catch Exception e 
+           (exception/handler "Error al actualizar usuario"  500 e req)))))
 
 (defn actualizar-correo-usuario
   [{{:keys [id usuario_correo]} :params :as req}] 
   (log/debug "Estos son los params " (:params req))
-  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+  (let [q (utils/route-data req)]
     (try
-      (db/actualizar-usuario type conn 'correo usuario_correo (java.util.UUID/fromString id))
+      (db/actualizar-usuario q :correo usuario_correo (java.util.UUID/fromString id))
       (http-response/ok "Correo actualizado con éxito")
-      (catch Exception e
-        (log/error "Error al actualizar usuario")
-        (exception/handler (.getMessage e) 0 e req)))))
+      (catch Exception e 
+        (exception/handler "Error al actualizar usuario" 500 e req)))))
 
 (defn actualizar-clave-usuario
   [{{:keys [id usuario_clave]} :params :as req}]
   (tap> req)
   (log/debug "Estos son los params " (:params req))
-  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+  (let [q (utils/route-data req)]
     (try
-      (db/actualizar-usuario type conn 'clave usuario_clave (java.util.UUID/fromString id))
+      (db/actualizar-usuario q :clave usuario_clave (java.util.UUID/fromString id))
       (http-response/ok "Clave actualizada con éxito")
-      (catch Exception e
-        (log/error "Error al actualizar usuario")
-        (exception/handler (.getMessage e) 0 e req)))))
+      (catch Exception e 
+        (exception/handler "Error al actualizar usuario" 500 e req)))))
 
 (defn borrar-usuario
   [{{:keys [id]} :params :as req}] 
   (log/debug "Estos son los params " (:params req))
-  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+  (let [q (utils/route-data req)]
     (try
-      (db/borrar-usuario type conn (java.util.UUID/fromString id))
+      (db/borrar-usuario q (java.util.UUID/fromString id))
       (http-response/ok "Usuario borrado")
-      (catch Exception e
-        (log/error "Error al eliminar usuario")
-        (exception/handler (.getMessage e) 0 e req)))))
+      (catch Exception e 
+        (exception/handler "Error al eliminar usuario" 500 e req)))))
 
 (defn obtener-usuario
   [{{:keys [id]} :params :as req}] 
   (log/debug "Estos son los params " (:params req))
-  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))] 
+  (let [q (utils/route-data req)] 
     (try
-      (-> (db/obtener-usuario-por-id type conn (java.util.UUID/fromString id))
+      (-> (db/obtener-usuario-por-id q (java.util.UUID/fromString id))
           (http-response/ok))
-      (catch Exception e
-        (log/error "Error al recuperar usuario")
-        (exception/handler (.getMessage e) 0 e req)))))
+      (catch Exception e 
+        (exception/handler "Error al recuperar usuario" 500 e req)))))
 
 (defn obtener-todos-usuarios
   [req]
-  (let [{:keys [conn type]} (first (:query-fn (utils/route-data req)))]
+  (let [q (utils/route-data req)]
     (try
-      (-> (db/obtener-usuarios type conn)
+      (-> (db/obtener-usuarios q)
           (http-response/ok))
-      (catch Exception e
-        (log/error "Error al obtener usuarios")
-        (exception/handler (.getMessage e) 0 e req)))))
+      (catch Exception e 
+        (exception/handler "Error al obtener usuarios" 500 e req)))))
 
 
-(comment
-  (def cc (->  state/system :reitit.routes/api second :query-fn first :conn))
+(comment  
+  (def cc (->  state/system :reitit.routes/api))
   (->
-   (db/obtener-usuario-por-id "xtdb" cc (java.util.UUID/fromString "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1"))
+   (db/obtener-usuario-por-id (utils/route-data cc) (java.util.UUID/fromString "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1"))
    (http-response/ok))
 
   (require '[hato.client :as hc])

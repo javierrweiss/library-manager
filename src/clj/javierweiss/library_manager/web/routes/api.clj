@@ -11,23 +11,20 @@
     [reitit.ring.middleware.parameters :as parameters]
     [reitit.swagger :as swagger]))
 
-
-;; Routes
-(defn api-routes
-  [_opts]
+(def default-routes
   [["/swagger.json"
     {:get {:no-doc  true
            :swagger {:info {:title "javierweiss.library-manager API"}}
            :handler (swagger/create-swagger-handler)}}]
    ["/health"
-    {:get health/healthcheck!}]
-   ["/usuario"
+    {:get health/h f usuario-routes
+  [["/usuario"
     {:get {:parameters {:query {:id string?}}
            :handler usuario/obtener-usuario}
-     :post {:parameters {:form-params {:nombre string?
-                                       :cuenta string?
-                                       :correo string?
-                                       :clave string?}}
+     :post {:parameters {:params {:nombre string?
+                                  :cuenta string?
+                                  :correo string?
+                                  :clave string?}}
             :handler usuario/crear-usuario}}]
    ["/usuario/del/"
     {:delete {:parameters {:query {:id string?}}
@@ -46,6 +43,16 @@
            :handler usuario/actualizar-clave-usuario}}]
    ["/usuario/todos/"
     {:get usuario/obtener-todos-usuarios}]])
+
+(defn version1-api
+  "Recibe uno o más vectores de vectores representando rutas y las hace preceder del path v1"
+  [& rutas]
+  (into ["/v1"] cat rutas))
+ 
+;; Routes
+(defn api-routes
+  [_opts] 
+  (conj default-routes (version1-api usuario-routes)))
 
  
 (defn route-data
@@ -81,3 +88,11 @@
       :or   {base-path ""}
       :as   opts}]
   [base-path (route-data opts) (api-routes opts)])
+
+
+(comment
+  
+  (count usuario-routes)    
+  (version1-api usuario-routes [["ruta/x" {}] ["ruta/y" {}]])
+  (api-routes {})
+  )

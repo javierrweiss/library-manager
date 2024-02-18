@@ -82,10 +82,10 @@
   (go [:db-type/xtdb :repl/server :server/http :reitit.routes/api :reitit.routes/ui])
   (go)
   (halt)
-  (reset)
+  (reset) 
   (reset-all)
   (clear)
-  (refresh)  ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
+  (refresh)   ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)
   (:db.sql/connection state/system)
 

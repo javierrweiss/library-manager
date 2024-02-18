@@ -1,4 +1,4 @@
-(ns javierweiss.library-manager.web.views.hello
+(ns javierweiss.library-manager.web.views.registro-usuario
   (:require
    [ctmx.core :as ctmx :refer [defcomponent]]
    [javierweiss.library-manager.web.htmx :refer [page-htmx]]
@@ -6,15 +6,10 @@
    [javierweiss.library-manager.db.db :as db]
    [javierweiss.library-manager.web.routes.utils :as utils]))
 
-
-(defcomponent ^:endpoint hello [req my-name]
-  [:div#hello "Hello " my-name])
-
-
 (defcomponent ^:endpoint usuario [req ^:path nombre ^:path correo ^:path cuenta ^:path clave]
   [:div#user-register
    [:form {:id "registro"
-           :hx-post "/api/usuario"}
+           :hx-post "/api/v1/usuario"}
     [:label "Nombre Completo"]
     [:input {:type "text"
              :name  (path "nombre")

@@ -427,6 +427,7 @@
   :dbg
   (keys state/system)
   (:system/env state/system)
+  (keys (:reitit.routes/api state/system))
   (def q (second (:reitit.routes/api state/system)))
   (def q-sql (assoc (second (:reitit.routes/api state/system))
                     :query-fn (:db.sql/query-fn state/system) 
