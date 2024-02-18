@@ -12,12 +12,14 @@
     [reitit.swagger :as swagger]))
 
 (def default-routes
-  [["/swagger.json"
+ [["/swagger.json"
     {:get {:no-doc  true
            :swagger {:info {:title "javierweiss.library-manager API"}}
            :handler (swagger/create-swagger-handler)}}]
-   ["/health"
-    {:get health/h f usuario-routes
+  ["/health"
+   {:get health/healthcheck!}]])
+  
+(def usuario-routes 
   [["/usuario"
     {:get {:parameters {:query {:id string?}}
            :handler usuario/obtener-usuario}
