@@ -5,8 +5,7 @@
    [integrant.repl.state :as state]
    [javierweiss.library-manager.datalog.documents :as datalog.documents]
    [javierweiss.library-manager.datalog.queries :as datalog.queries]
-   [clojure.string :as s]
-   [clojure.test :as t]))
+   [clojure.string :as s]))
 
 ;; CONFIGURACION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
