@@ -143,7 +143,6 @@
 
 (comment
   :dbg 
-  (require '[xtdb.api :as xtdb])
   (def state-xtdb (second (:reitit.routes/api (utils/system-state)))) 
   (library-manager-db/crear-usuario state-xtdb "Marco Tovar" "marcotovar@gmail.com" "marcossd_tcsa55" "d99fd $$$ 22")
   (xtdb/latest-completed-tx (:query-fn state-xtdb)) 

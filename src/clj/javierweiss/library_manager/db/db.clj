@@ -1,6 +1,5 @@
 (ns javierweiss.library-manager.db.db
-  (:require
-   [clojure.tools.logging :as log]
+  (:require 
    [integrant.core :as ig]
    [integrant.repl.state :as state]
    [javierweiss.library-manager.datalog.documents :as datalog.documents]
@@ -8,9 +7,6 @@
    [clojure.string :as s]))
 
 ;; CONFIGURACION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defmethod ig/init-key :db/db [_ db]
-  db)
 
 (defmethod ig/init-key :db/type [_ type]
   type)
@@ -418,22 +414,24 @@
 ;; OTRAS CONSULTAS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
 (comment
   (keyword :er)
   (keyword "qw" "df")
   :tut/basics
-  :tut/next
+  :tut/next 
   :dbg
-  (keys state/system)
+  (tap> state/system)
+  (:db/db state/system)
   (:system/env state/system)
   (keys (:reitit.routes/api state/system))
-  (def q (second (:reitit.routes/api state/system)))
+  (def q (second (:reitit.routes/api state/system))) 
+  (tap> q)
   (def q-sql (assoc (second (:reitit.routes/api state/system))
                     :query-fn (:db.sql/query-fn state/system) 
                     :db-type :sql))
-  (tap> q) 
-  (crear-usuario q-sql "Lino Mann" "linomann@gmail.com" "linomann" "4645454") 
-  (def u (crear-usuario q "Lino Mann" "linomann@gmail.com" "linomann" "4645454"))
+  (tap> q)   
+  (def u (crear-usuario q "Juana Mann" "juanamann@gmail.com" "jmann" "4645p*454"))
   (actualizar-usuario q "nombre" "Mario Mariana" #uuid "1b59d86a-dea9-45b2-84c4-9a67677e7271")
   (crear-autor q-sql "Juana" "Mariana") 
   (crear-referencia q-sql 
@@ -461,9 +459,11 @@
                                                     :usuario/cuenta "jrivero"
                                                     :usuario/nombre "Juliana Rivero"
                                                     :usuario/clave "Mi super keyword"})
-  
+  (type (obtener-usuarios q))
+  (obtener-usuarios state/system)
   (obtener-usuarios q-sql)
   (obtener-autores q-sql)
+
 
   (tap> (obtener-referencias q-sql))
   (count (obtener-referencias q-sql))

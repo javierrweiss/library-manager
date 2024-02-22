@@ -147,7 +147,7 @@
 
 
 (comment   
-  (def node (:db.xtdb/node state/system)) 
+  (def node (:db.xtdb/node state/system))  
   (def t (xt/submit-tx node 
                        [[::xt/put {:xt/id (java.util.UUID/randomUUID)
                                    :nombre "Julia Abrañam"
@@ -400,4 +400,5 @@
                                                  (java.util.UUID/randomUUID)))
 
   (obtener-todas-las-entidades node :coleccion/nombre_coll)
+  (obtener-todas-las-entidades node :usuario/nombre)
   )

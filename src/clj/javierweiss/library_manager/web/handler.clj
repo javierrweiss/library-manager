@@ -6,11 +6,10 @@
     [reitit.swagger-ui :as swagger-ui]
     [ring.util.http-response :as http-response]))
 
-
 (defmethod ig/init-key :handler/ring
   [_ {:keys [router api-path] :as opts}]
   (ring/ring-handler
-    router
+    (router)
     (ring/routes
       ;; Handle trailing slash in routes - add it + redirect to it
       ;; https://github.com/metosin/reitit/blob/master/doc/ring/slash_handler.md 
@@ -31,12 +30,16 @@
                          (http-response/content-type "text/html")))}))
     {:middleware [(middleware/wrap-base opts)]}))
 
-
 (defmethod ig/init-key :router/routes
   [_ {:keys [routes]}]
-  (apply conj [] routes))
-
+  (mapv (fn [route]
+          (if (fn? route)
+            (route)
+            route))
+        routes))
 
 (defmethod ig/init-key :router/core
-  [_ {:keys [routes] :as opts}]
-  (ring/router ["" opts routes]))
+  [_ {:keys [routes env] :as opts}]
+  (if (= env :dev)
+    #(ring/router ["" opts routes])
+    (constantly (ring/router ["" opts routes]))))

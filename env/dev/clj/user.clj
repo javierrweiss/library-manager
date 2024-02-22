@@ -11,7 +11,8 @@
    [kit.api :as kit]
    [lambdaisland.classpath.watch-deps :as watch-deps]      ;; hot loading for deps 
    [javierweiss.library-manager.core :refer [start-app]]
-   [clj-test-containers.core :as tc])
+   [clj-test-containers.core :as tc]
+   [portal.api :as p])
   (:import [org.testcontainers.containers CockroachContainer])) ;; Si falta esta dependencia, no arranca el repl)
 
 
@@ -68,21 +69,20 @@
 
 (def query-fn (:db.sql/query-fn state/system))
 
-(require '[portal.api :as p])
 (def p (p/open {:launcher :vs-code}))
 (add-tap #'p/submit)
 
 (comment
-
+(p/close)
   (let [prep-fn (test-prep!)]
     (prep-fn))
   (dev-prep!)
-  (init)
-  ;; Iniciar el sistema sin tocar ninguna conexión SQL 
+  (init [:reitit.routes/api])
+  ;; Iniciar el sistema sin tocar ninguna conexión SQL  
   (go [:db-type/xtdb :repl/server :server/http :reitit.routes/api :reitit.routes/ui])
-  (go)
-  (halt)
-  (reset) 
+  (go)   
+  (halt) 
+  (reset)  
   (reset-all)
   (clear)
   (refresh)   ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
@@ -108,8 +108,8 @@
 
   (kit/sync-modules)
   (kit/list-modules)
-  (kit/install-module :kit/ctmx)
-  (kit/install-module :kit/hato)
+  (kit/install-module :kit/simpleui)
+  (kit/install-module :kit/tailwind)
   ;;No necesitaba crearla, ya estaba
   (def consulta (:db.sql/query-fn state/system))
 

@@ -1,7 +1,7 @@
 (ns javierweiss.library-manager.web.htmx
   (:require
     [ctmx.render :as render]
-    [hiccup.core :as h]
+    [hiccup2.core :as h]
     [hiccup.page :as p]
     [ring.util.http-response :as http-response]))
 

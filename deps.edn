@@ -1,7 +1,7 @@
 {:paths   ["src/clj" 
            "resources"]
 
- :deps    {org.clojure/clojure {:mvn/version "1.12.0-alpha7"}
+ :deps    {org.clojure/clojure {:mvn/version "1.11.1"}
 
            ;; Routing
  metosin/reitit {:mvn/version "0.7.0-alpha7"}
@@ -57,8 +57,8 @@
                                 djblue/portal                           {:mvn/version "0.52.2"}
                                 clj-test-containers/clj-test-containers {:mvn/version "0.7.4"}
                                 org.testcontainers/cockroachdb          {:mvn/version "1.17.6"}
-                                com.github.jpmonettas/clojure           {:mvn/version "RELEASE"}
-                                com.github.jpmonettas/flow-storm-dbg    {:mvn/version "RELEASE"}
+                                com.github.flow-storm/clojure           {:mvn/version "1.11.1-19"}
+                                com.github.flow-storm/flow-storm-dbg    {:mvn/version "3.12.0"}
                                 hato/hato                               {:mvn/version "0.9.0"}}
                   :extra-paths ["env/dev/clj" "env/dev/resources" "test/clj"]
                   :jvm-opts  ["-Dclojure.storm.instrumentEnable=true" "-Dclojure.storm.instrumentOnlyPrefixes=javierweiss.library-manager."]}

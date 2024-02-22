@@ -76,26 +76,27 @@
 
 (defn obtener-todos-usuarios
   [req]
-  (let [q (utils/route-data req)]
-    (try
-      (-> (db/obtener-usuarios q)
-          (http-response/ok))
-      (catch Exception e 
-        (exception/handler "Error al obtener usuarios" 500 e req)))))
+  (tap> req) 
+  (try
+    (let [q (utils/route-data req)]
+      (-> (db/obtener-usuarios q)  
+          (http-response/ok)))
+    (catch Exception e 
+      (exception/handler "Error al obtener usuarios" 500 e req))))
 
-
+ 
 (comment  
   (def cc (->  state/system :reitit.routes/api))
-  (->
+  
+   (->
    (db/obtener-usuario-por-id (utils/route-data cc) (java.util.UUID/fromString "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1"))
    (http-response/ok))
 
-  (require '[hato.client :as hc])
   (def c (hc/build-http-client {:connect-timeout 10000
                                 :redirect-policy :always
                                 :ssl-context {:insecure? true}}))
 
-  (tap> (hc/get "http://127.0.0.1:3000/api/usuario/todos" {:http-client c}))
+  (tap> @(hc/get "http://127.0.0.1:3000/api/v1/usuario/todos" ))
  
   (tap> (hc/delete "http://127.0.0.1:3000/api/usuario/del" {:query-params {:id "17ac5d64-c0d8-4a48-bb83-2dff987af89d"}}))
 
@@ -107,16 +108,15 @@
            {:params {:usuario_nombre "Fulano" :usuario_cuenta "fulano233" :usuario_correo "fulano@gmail.com" :usuario_clave 1546465}
             :content-type :json}
            {:http-client c})
-
-  "curl -F usuario_nombre=Javier -F usuario_cuenta=javierzihno -F usuario_correo=correoescorreo -F usuario_clave=keywords22 http://localhost:3000/api/usuario"
-  :dbg 
+     
+  :dbg   
   :ex
   (crear-usuario (hc/post "http://127.0.0.1:3000/api/usuario"
                           {:form-params {:nombre "Fulano" :cuenta "fulano233" :correo "fulano@gmail.com" :clave "332ssd··"}
                            :content-type :json}
                           {:http-client c}))
   :ex
-  (require '[integrant.repl.state :as state])
+  
 
   (hc/get "http://127.0.0.1:3000/api/usuario"
           {:query-params {:id "46b37e5c-5242-4ea5-a963-46b4ca7ccaf1"}
