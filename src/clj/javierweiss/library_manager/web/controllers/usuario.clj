@@ -9,19 +9,18 @@
     [integrant.repl.state :as state]))
 
 (defn crear-usuario
-  [{{:keys [usuario_nombre usuario_cuenta usuario_correo usuario_clave]} :params :as req}] 
-  (tap> req)
+  [{{:keys [registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo registro_usuario_clave]} :params :as req}] 
   (log/debug "Estos son los params " (:params req)) 
   (let [q (utils/route-data req)]
     (try
-      (log/debug "Creando usuario con los parámetros " usuario_nombre usuario_cuenta usuario_correo)
-      (if (some nil? [usuario_nombre usuario_cuenta usuario_correo usuario_clave])
-        (http-response/bad-request "Ningún campo debe quedar vacío")
-        (do (db/crear-usuario q usuario_nombre usuario_correo usuario_cuenta usuario_clave)
-            (http-response/created "Registro creado con éxito")))
+      (log/debug "Creando usuario con los parámetros " registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo)
+      (if (some nil? [registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo registro_usuario_clave])
+         (http-response/bad-request)
+        (do (db/crear-usuario q registro_usuario_nombre registro_usuario_correo registro_usuario_cuenta registro_usuario_clave)
+            (http-response/created)))
       (catch Exception e 
-        (exception/handler "Error al crear usuario" 500 e req)))))
-
+        (do (http-response/internal-server-error)
+            (exception/handler "Error al crear usuario" 500 e req))))))
 
 (defn actualizar-nombre-usuario
   [{{:keys [id usuario_nombre]} :params :as req}] 
@@ -44,8 +43,7 @@
         (exception/handler "Error al actualizar usuario" 500 e req)))))
 
 (defn actualizar-clave-usuario
-  [{{:keys [id usuario_clave]} :params :as req}]
-  (tap> req)
+  [{{:keys [id usuario_clave]} :params :as req}] 
   (log/debug "Estos son los params " (:params req))
   (let [q (utils/route-data req)]
     (try
@@ -75,8 +73,7 @@
         (exception/handler "Error al recuperar usuario" 500 e req)))))
 
 (defn obtener-todos-usuarios
-  [req]
-  (tap> req) 
+  [req] 
   (try
     (let [q (utils/route-data req)]
       (-> (db/obtener-usuarios q)  

@@ -88,7 +88,7 @@
   (refresh)   ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)
   (:db.sql/connection state/system)
-
+:dbg
   (query-fn :obtener-referencias-y-publicaciones)
   (query-fn :obtener-todo {:table "usuarios"})
 
