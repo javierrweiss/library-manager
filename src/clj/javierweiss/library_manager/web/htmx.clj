@@ -1,19 +1,12 @@
 (ns javierweiss.library-manager.web.htmx
   (:require
-    [simpleui.render :as render]
-    [hiccup2.core :as h]
+    [simpleui.render :as render] 
     [hiccup.page :as p]
     [ring.util.http-response :as http-response]))
 
 (defn page
   [opts & content]
   (-> (p/html5 opts content)
-      http-response/ok
-      (http-response/content-type "text/html")))
-
-(defn ui
-  [opts & content]
-  (-> (h/html opts content)
       http-response/ok
       (http-response/content-type "text/html")))
 

@@ -7,19 +7,18 @@
    [javierweiss.library-manager.web.routes.utils :as utils]))
 
 (defcomponent ^:endpoint registro_exitoso [req]
-  [:div#registro_exitoso "Registro creado con éxito"
-   #_[:h2 ]])
+  [:div#registro_exitoso 
+   [:h2 "Registro creado con éxito"]])
 
 (defcomponent ^:endpoint registro_no_exitoso [req msj]
   [:div#registro_no_exitoso
    [:h2 msj]])
 
 (defcomponent ^:endpoint registro_usuario [req ^:path nombre ^:path correo ^:path cuenta ^:path clave] 
-  [:div#user-register
-   [:form {:id "registro"
-           :hx-post "/api/v1/usuario"
-           :hx-patch "registro-exitoso"
-           :hx-swap "#registro_exitoso"}
+  [:div#user-register 
+   [:form {:hx-post "/api/v1/usuario"
+           :hx-target "this"
+           :hx-swap "outerHTML"}
     [:label "Nombre Completo"]
     [:input {:type "text"
              :name  (path "nombre")
@@ -37,29 +36,19 @@
              :name (path "clave")
              :value clave}][:br]
     [:input {:type "submit"
-             :value "Registrarse"}]]
-             (registro_exitoso req)])
-
+             :value "Registrarse"}]]])
 
 (defn ui-routes
   [base-path]
   (simpleui/make-routes
-    base-path
+    base-path 
     (fn [req]
       (page-htmx
         (registro_usuario req "" "" "" "")))))
 
 
 (comment
-  [:label {:style "margin-right: 10px"}
-   "What is your name?"]
-  [:input {:type "text"
-           :name "my-name"
-           :hx-patch "hello"
-           :hx-target "#hello"
-           :hx-swap "outerHTML"}]
-  (ui-routes "")
   
-  
+  :dbg 
   
   )

@@ -22,13 +22,13 @@
   
 (def usuario-routes 
   [["/usuario"
-    {:get {:parameters {:query {:id string?}}
-           :handler usuario/obtener-usuario}
-     :post {:parameters {:params {:nombre string?
+    {:post {:parameters {:params {:nombre string?
                                   :cuenta string?
                                   :correo string?
                                   :clave string?}}
             :handler usuario/crear-usuario}}]
+   ["/usuario/:id" {:get {:parameters {:query {:id string?}}
+                          :handler usuario/obtener-usuario}}]
    ["/usuario/del/"
     {:delete {:parameters {:query {:id string?}}
               :handler usuario/borrar-usuario}}]
