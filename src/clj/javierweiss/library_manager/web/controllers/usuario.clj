@@ -18,9 +18,12 @@
       (log/debug "Creando usuario con los parámetros " registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo)
       (if (some string/blank? [registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo registro_usuario_clave])
          (-> (http-response/bad-request (htmx/page-htmx (u/registro_no_exitoso req "Debe completar todos los campos"))) :body) ;; Delegar validación al formulario
-        (let [id (-> (db/crear-usuario q registro_usuario_nombre registro_usuario_correo registro_usuario_cuenta registro_usuario_clave)
-                     first 
-                     :id)]
+        (let [resp (db/crear-usuario q registro_usuario_nombre registro_usuario_correo registro_usuario_cuenta registro_usuario_clave)
+              id (if-not (uuid? resp)
+                   (-> resp
+                       first
+                       :id)
+                   resp)]
             (-> (http-response/created (str "/usuario/" id) (htmx/page-htmx (u/registro_exitoso req))) :body)))
       (catch Exception e 
         (exception/handler "Error al crear usuario" 500 e req)))))
@@ -92,5 +95,5 @@
   (http-response/bad-request (htmx/page-htmx (u/registro_exitoso {:status 200 :headers "" :body ""})))
 
   (db/crear-usuario (second ((:reitit.routes/api state/system))) "Juan Mora" "juanmora@gmail.com" "juanmora" "dssdr333")
-  
+   
   )
