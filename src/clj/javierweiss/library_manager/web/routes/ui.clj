@@ -3,8 +3,7 @@
    [integrant.core :as ig]
    [javierweiss.library-manager.web.middleware.exception :as exception]
    [javierweiss.library-manager.web.middleware.formats :as formats]
-   [javierweiss.library-manager.web.views.usuario :as usuario]
-   [javierweiss.library-manager.web.views.utils :as utils-ui]
+   [javierweiss.library-manager.web.views.usuario :as usuario] 
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.parameters :as parameters]))
 
@@ -29,4 +28,4 @@
   [_ {:keys [base-path]
       :or   {base-path ""}
       :as   opts}]
-  [base-path (route-data opts) (usuario/ui-routes "/usuario") (utils-ui/ui-routes "/uts")])
+  [base-path (route-data opts) (usuario/ui-routes base-path)])

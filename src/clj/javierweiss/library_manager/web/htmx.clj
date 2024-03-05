@@ -14,8 +14,9 @@
   [& body]
   (page
     [:head
-     [:meta {:charset "UTF-8"}]
-     [:title "Library Manager"]
+     [:meta {:charset "UTF-8" :name "viewport" :content "width=device-width, initial-scale=1.0"}]
+     [:title "Library Manager"] 
+     [:link {:rel "stylesheet" :href "output.css" :type "text/css"}]
      [:script {:src "https://unpkg.com/htmx.org@1.2.0/dist/htmx.min.js" :defer true}]]
     [:body (render/walk-attrs body)]))
 
