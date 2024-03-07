@@ -73,22 +73,30 @@
 (add-tap #'p/submit)
 
 (comment
-(p/close)
+  (p/close)
   (let [prep-fn (test-prep!)]
     (prep-fn))
   (dev-prep!)
   (init [:reitit.routes/api])
-  ;; Iniciar el sistema sin tocar ninguna conexión SQL  
-  (go [:db-type/xtdb :repl/server :server/http :reitit.routes/api :reitit.routes/ui])
-  (go)   
-  (halt)  
-  (reset)  
+
+  (defn ui-edit-restart-mode
+    []
+    (let [start (fn [] (go [:repl/server :server/http :reitit.routes/api :reitit.routes/ui]))]
+      (if (nil? state/system)
+        (start)
+        (do (halt)
+            (refresh)
+            (start)))))
+  
+  (go) 
+  (ui-edit-restart-mode)  
+  (reset) 
   (reset-all)
   (clear)
   (refresh)   ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)
   (:db.sql/connection state/system)
-:dbg
+  :dbg
   (query-fn :obtener-referencias-y-publicaciones)
   (query-fn :obtener-todo {:table "usuarios"})
 
@@ -194,4 +202,5 @@
 
   :bibliotecas/colecciones #uuid "20a13609-669c-4179-9429-f54f1a571b06"
 
-  (consulta :obtener-todo {:table "citas"}))
+  (consulta :obtener-todo {:table "citas"})
+  )

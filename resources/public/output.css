@@ -797,6 +797,10 @@ select {
   padding-bottom: 0;
 }
 
+.relative {
+  position: relative;
+}
+
 .mx-80 {
   margin-left: 20rem;
   margin-right: 20rem;
@@ -843,6 +847,16 @@ select {
   border-style: solid;
 }
 
+.bg-pale-purple {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 212 237 / var(--tw-bg-opacity));
+}
+
+.bg-rebecca-purple {
+  --tw-bg-opacity: 1;
+  background-color: rgb(89 65 169 / var(--tw-bg-opacity));
+}
+
 .bg-slate-blue {
   --tw-bg-opacity: 1;
   background-color: rgb(109 114 195 / var(--tw-bg-opacity));
@@ -853,8 +867,8 @@ select {
      object-position: center;
 }
 
-.p-2 {
-  padding: 0.5rem;
+.p-12 {
+  padding: 3rem;
 }
 
 .p-4 {
