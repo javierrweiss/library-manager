@@ -11,12 +11,12 @@
    [:h2 msj]])
 
 (defcomponent ^:endpoint registro_usuario [req ^:path nombre ^:path correo ^:path cuenta ^:path clave]
-  [:section 
+  [:section#registro 
    [:div.border-solid.border-4.mx-80.my-12.px-40.bg-slate-blue
     [:h2.p-8.text-center "¡Complete este formulario para crear su cuenta!"]
     [:form#user-register.object-center.p-6
      {:hx-post "/api/v1/usuario"
-      :hx-target "this"
+      :hx-target "#registro"
       :hx-swap "outerHTML"}
      [:div.grid.grid-cols-2.gap-5.justify-items-center
       [:label.pl-35 {:for "nombre"} "Nombre Completo"]
