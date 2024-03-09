@@ -6,11 +6,7 @@
    [javierweiss.library-manager.db.db :as db]
    [javierweiss.library-manager.web.routes.utils :as utils]))
 
-(defcomponent ^:endpoint registro_exitoso [req]
-  [:div#registro_exitoso 
-   [:h2 "Registro creado con éxito"]])
-
-(defcomponent ^:endpoint registro_no_exitoso [req msj]
+(defcomponent ^:endpoint registro_no_exitoso [_ msj]
   [:div#registro_no_exitoso
    [:h2 msj]])
 
@@ -28,22 +24,30 @@
        {:id "nombre"
         :type "text"
         :name  (path "nombre")
-        :value nombre}]
+        :value nombre
+        :required true
+        :max-length "60"}]
       [:label.pl-35 "Correo electrónico"]
       [:input.pr-35
-       {:type "text"
+       {:type "email"
         :name  (path "correo")
-        :value correo}]
+        :value correo
+        :required true
+        :max-length "120"}]
       [:label.pl-35 "Nombre de usuario"]
       [:input.pr-35
        {:type "text"
         :name  (path "cuenta")
-        :value cuenta}]
+        :value cuenta
+        :required true
+        :max-length "40"}]
       [:label.pl-35 "Ingrese su contraseña"]
       [:input.pr-35
        {:type "password"
         :name (path "clave")
-        :value clave}]]
+        :value clave
+        :required true
+        :max-length "100"}]]
      [:br.p-4]
      [:div.flex.justify-center.p-4
       [:input.p-4.form-input.rounded-full.bg-pale-purple.text-white-200
@@ -52,6 +56,9 @@
 
 (defcomponent ^:endpoint titulo [_] 
   [:h1.p-6.text-black-700.font-bold.text-2xl.text-center "Nuevo Usuario"])
+
+(defcomponent ^:endpoint muestra_usuario [req]
+  [:div#muestra_usuario])
 
 (defn ui-routes
   [base-path]

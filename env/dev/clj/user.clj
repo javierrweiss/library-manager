@@ -89,6 +89,7 @@
             (start)))))
   
   (go) 
+  (halt)
   (ui-edit-restart-mode)  
   (reset) 
   (reset-all)
