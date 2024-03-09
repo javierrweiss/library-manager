@@ -26,28 +26,28 @@
         :name  (path "nombre")
         :value nombre
         :required true
-        :max-length "60"}]
+        :maxlength "60"}]
       [:label.pl-35 "Correo electrónico"]
       [:input.pr-35
        {:type "email"
         :name  (path "correo")
         :value correo
         :required true
-        :max-length "120"}]
+        :maxlength "120"}]
       [:label.pl-35 "Nombre de usuario"]
       [:input.pr-35
        {:type "text"
         :name  (path "cuenta")
         :value cuenta
         :required true
-        :max-length "40"}]
+        :maxlength "40"}]
       [:label.pl-35 "Ingrese su contraseña"]
       [:input.pr-35
        {:type "password"
         :name (path "clave")
         :value clave
         :required true
-        :max-length "100"}]]
+        :maxlength "100"}]]
      [:br.p-4]
      [:div.flex.justify-center.p-4
       [:input.p-4.form-input.rounded-full.bg-pale-purple.text-white-200
