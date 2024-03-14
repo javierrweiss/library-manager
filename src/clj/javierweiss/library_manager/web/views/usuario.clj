@@ -1,7 +1,6 @@
 (ns javierweiss.library-manager.web.views.usuario
   (:require
-   [simpleui.core :as simpleui :refer [defcomponent]]
-   [javierweiss.library-manager.web.htmx :refer [page-htmx]]
+   [simpleui.core :as simpleui :refer [defcomponent]] 
    [clojure.tools.logging :as log]
    [javierweiss.library-manager.db.db :as db]
    [javierweiss.library-manager.web.routes.utils :as utils]))
@@ -10,7 +9,7 @@
   [:div#registro_no_exitoso
    [:h2 msj]])
 
-(defcomponent ^:endpoint registro_usuario [req ^:path nombre ^:path correo ^:path cuenta ^:path clave]
+(defcomponent ^:endpoint formulario_usuario [req ^:path nombre ^:path correo ^:path cuenta ^:path clave]
   [:section#registro 
    [:div.border-solid.border-4.mx-80.my-12.px-40.bg-slate-blue
     [:h2.p-8.text-center "¡Complete este formulario para crear su cuenta!"]
@@ -60,10 +59,31 @@
 (defcomponent ^:endpoint muestra_usuario [req]
   [:div#muestra_usuario])
 
-(defn ui-routes
-  [base-path]
+(defcomponent ^:endpoint registro_usuario [req]
+  [:body [:header.p-12.bg-pale-purple
+          [:div
+           [:h2 "Acá va mi menú"]]]
+   [:article.bg-rebecca-purple.p-8
+    (titulo req)
+    (formulario_usuario req)]
+   [:footer.bg-pale-purple.relative.p-12
+    [:div "@javierweiss2024"]]])
+
+
+(comment
+
+  :dbg
+
+(ui-routes "/")
+  
+  (let [req {}]
+    (page-htmx
+     (titulo req)
+     (registro_usuario req "" "" "" "")))
+
   (simpleui/make-routes
-   base-path
+   "/"
+   ["/rutax" "/rutay"]
    (fn [req]
      (page-htmx
       [:header.p-12.bg-pale-purple
@@ -73,17 +93,5 @@
        (titulo req)
        (registro_usuario req)]
       [:footer.bg-pale-purple.relative.p-12
-       [:div "@javierweiss2024"]]))))
-
-
-(comment
-
-  :dbg
-
-  (let [req {}]
-    (page-htmx
-     (titulo req)
-     (registro_usuario req "" "" "" "")))
-
-  (update)
+       [:div "@javierweiss2024"]])))
   )

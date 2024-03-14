@@ -3,10 +3,9 @@
    [integrant.core :as ig]
    [javierweiss.library-manager.web.middleware.exception :as exception]
    [javierweiss.library-manager.web.middleware.formats :as formats]
-   [javierweiss.library-manager.web.views.usuario :as usuario] 
+   [javierweiss.library-manager.web.views.home :refer [ui-routes]] 
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.parameters :as parameters]))
-
 
 (defn route-data
   [opts]
@@ -28,4 +27,4 @@
   [_ {:keys [base-path]
       :or   {base-path ""}
       :as   opts}]
-  [base-path (route-data opts) (usuario/ui-routes base-path)])
+  [base-path (route-data opts) (ui-routes base-path)])
