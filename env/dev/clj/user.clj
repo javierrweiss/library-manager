@@ -88,12 +88,12 @@
             (refresh)
             (start)))))
   
-  (go) 
-  (halt) 
-  (ui-edit-restart-mode)  
-  (reset) 
+  (go)    
+  (halt)   
+  (ui-edit-restart-mode)   
+  (reset)  
   (reset-all)
-  (clear)
+  (clear)  
   (refresh)   ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)
   (:db.sql/connection state/system)

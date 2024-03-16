@@ -3,9 +3,6 @@ module.exports = {
   content: ["./target/generated-sources/tailwind/**/*.{html,js}"],
   theme: {
     extend: {},
-    textColor: {
-      'davys-gray': '#514F59',
-    },
     colors: {
       'slate-blue': '#6D72C3',
       'pale-purple': '#E5D4ED',
