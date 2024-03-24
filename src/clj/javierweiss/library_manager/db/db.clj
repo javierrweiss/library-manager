@@ -87,9 +87,18 @@
   [state-map id] 
   (obtener-entidad-por-id state-map "usuarios" id))
 
-(defn obtener-usuario
-  [state-map correo cuenta]
-  )
+
+(defmulti obtener-usuario (fn [state-map _ _ ] (:db-type state-map)))
+
+(defmethod obtener-usuario :sql
+  [state-map cuenta clave] 
+  {:pre [(bytes? clave)]}
+  ((:query-fn state-map) :buscar-usuario {:usuarios/cuenta cuenta
+                                          :usuarios/clave clave}))
+
+(defmethod obtener-usuario :xtdb
+  [_ cuenta clave]
+  {:pre [(bytes? clave)]})
 
 (defn actualizar-usuario
   [state-map campo valor id] 

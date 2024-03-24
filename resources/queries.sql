@@ -15,7 +15,7 @@ RETURNING id;
 -- :doc Busca usuario por cuenta y contraseña
 SELECT id, correo, nombre, cuenta
 FROM usuarios
-WHERE cuenta = :cuenta AND clave = :clave;
+WHERE cuenta = :usuarios/cuenta AND clave = :usuarios/clave;
 
 -- Autores
 

@@ -46,9 +46,10 @@
            :handler usuario/actualizar-clave-usuario}}]
    ["/usuario/todos/"
     {:get usuario/obtener-todos-usuarios}]
-   ["/usuario/login"
+   ["/login"  
     {:post {:parameters {:params {:cuenta string?
-                                  :clave }}}}]])
+                                  :clave bytes?}}
+            :handler usuario/obtener-usuario}}]])
 
 (defn version1-api
   "Recibe uno o más vectores de vectores representando rutas y las hace preceder del path v1"
