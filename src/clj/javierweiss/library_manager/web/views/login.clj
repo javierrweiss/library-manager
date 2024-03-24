@@ -16,3 +16,5 @@
              :name (path clave)}]
     [:button {:type "submit"
               :value "Ingresar"}]]])
+
+;; El hasheo y conversión a string de las claves debería ocurrir enteramente en el cliente, para que no viaje ninguna clave decodificada por la red

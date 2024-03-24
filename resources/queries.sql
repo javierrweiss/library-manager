@@ -6,9 +6,9 @@
 -- Usuarios
 
 -- :name crear-usuario! :<!
--- :doc Crea un usuario
+-- :doc Crea un usuario. 
 INSERT INTO usuarios (id, correo, nombre, cuenta, clave) 
-VALUES(gen_random_uuid(), :usuarios/correo, :usuarios/nombre, :usuarios/cuenta, DIGEST(:usuarios/clave, 'sha384'))
+VALUES(gen_random_uuid(), :usuarios/correo, :usuarios/nombre, :usuarios/cuenta, :usuarios/clave)
 RETURNING id;
 
 -- :name buscar-usuario :? :1
