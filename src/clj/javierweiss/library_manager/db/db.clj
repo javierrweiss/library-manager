@@ -97,8 +97,9 @@
                                           :usuarios/clave clave}))
 
 (defmethod obtener-usuario :xtdb
-  [_ cuenta clave]
-  {:pre [(bytes? clave)]})
+  [state-map cuenta clave]
+  {:pre [(bytes? clave)]}
+  (datalog.queries/obtener-usuario-por-cuenta (:query-fn state-map) cuenta clave))
 
 (defn actualizar-usuario
   [state-map campo valor id] 
@@ -437,13 +438,14 @@
   (tap> state/system)
   (:db/db state/system)
   (:system/env state/system)
-  (keys (:reitit.routes/api state/system))
-  (def q (second (:reitit.routes/api state/system))) 
+  (keys (:reitit.routes/api state/system))  
+  (def q (-> (:router/routes state/system) second second)) 
   (tap> q)
   (def q-sql (assoc (second (:reitit.routes/api state/system))
                     :query-fn (:db.sql/query-fn state/system) 
                     :db-type :sql))
-  (tap> q)   
+  (obtener-usuarios q)
+  (obtener-usuario q "juanmora" "dssdr333")
   (def u (crear-usuario q "Juana Mann" "juanamann@gmail.com" "jmann" "4645p*454"))
   (actualizar-usuario q "nombre" "Mario Mariana" #uuid "1b59d86a-dea9-45b2-84c4-9a67677e7271")
   (crear-autor q-sql "Juana" "Mariana") 
