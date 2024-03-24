@@ -73,7 +73,6 @@
             :where [[?ent :xt/id ident]]}
      ident))
 
-
 (defn borrar-por-id
   "Elimina una entidad según si uuid"
   [nodo ident]
@@ -104,6 +103,12 @@
   (q nodo '{:find [(pull ?usuario [*])]
             :where [[?usuario :usuario/nombre]]}))
 
+(defn obtener-usuario-por-cuenta
+  "Recupera entidad(es) por campos seleccionados"
+  [nodo cuenta clave]
+  (q nodo '{:find [(pull ?ent [*])]
+            :where [[?ent :usuario/cuenta cuenta]
+                    [?ent :usuario/clave clave]]}))
 
 (defn obtener-todas-referencias
   "Muestra todas las entidades del mapa de entidades de tipo referencia"

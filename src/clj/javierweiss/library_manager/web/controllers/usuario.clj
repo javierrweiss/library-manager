@@ -70,7 +70,7 @@
       (catch Exception e 
         (exception/handler (:body (htmx/page-htmx (err/error req (str "No se pudo eliminar el usuario")))) "Error al eliminar usuario" 500 e req)))))
 
-(defn obtener-usuario
+(defn obtener-usuario-por-id 
   [{{:keys [id]} :params :as req}] 
   (log/debug "Estos son los params " (:params req))
   (let [q (utils/route-data req)] 
@@ -80,6 +80,18 @@
           (http-response/ok)
           :body)
       (catch Exception e 
+        (exception/handler (:body (htmx/page-htmx (err/error req (str "No se pudo recuperar la información del usuario")))) "Error al recuperar usuario" 500 e req)))))
+
+#_(defn obtener-usuario 
+  [{{:keys [cuenta correo]} :params :as req}]
+  (log/debug "Estos son los params " (:params req))
+  (let [q (utils/route-data req)]
+    (try
+      (-> (db/obtener-usuario-por-id q (java.util.UUID/fromString id))
+          (htmx/page-htmx (u/muestra_usuario))
+          (http-response/ok)
+          :body)
+      (catch Exception e
         (exception/handler (:body (htmx/page-htmx (err/error req (str "No se pudo recuperar la información del usuario")))) "Error al recuperar usuario" 500 e req)))))
 
 (defn obtener-todos-usuarios

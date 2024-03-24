@@ -59,15 +59,10 @@
 (defcomponent ^:endpoint muestra_usuario [req]
   [:div#muestra_usuario])
 
-(defcomponent ^:endpoint registro_usuario [req]
-  [:body [:header.p-12.bg-pale-purple
-          [:div
-           [:h2 "Acá va mi menú"]]]
-   [:article.bg-rebecca-purple.p-8
-    (titulo req)
-    (formulario_usuario req)]
-   [:footer.bg-pale-purple.relative.p-12
-    [:div "@javierweiss2024"]]])
+(defcomponent ^:endpoint registro_usuario [req] 
+  [:article.bg-rebecca-purple.p-8
+   (titulo req)
+   (formulario_usuario req)])
 
 
 (comment

@@ -28,7 +28,7 @@
                                   :clave string?}}
             :handler usuario/crear-usuario}}]
    ["/usuario/:id" {:get {:parameters {:query {:id string?}}
-                          :handler usuario/obtener-usuario}}]
+                          :handler usuario/obtener-usuario-por-id}}]
    ["/usuario/del/"
     {:delete {:parameters {:query {:id string?}}
               :handler usuario/borrar-usuario}}]
@@ -45,7 +45,10 @@
                                 :usuario_clave string?}}
            :handler usuario/actualizar-clave-usuario}}]
    ["/usuario/todos/"
-    {:get usuario/obtener-todos-usuarios}]])
+    {:get usuario/obtener-todos-usuarios}]
+   ["/usuario/login"
+    {:post {:parameters {:params {:cuenta string?
+                                  :clave }}}}]])
 
 (defn version1-api
   "Recibe uno o más vectores de vectores representando rutas y las hace preceder del path v1"

@@ -11,6 +11,11 @@ INSERT INTO usuarios (id, correo, nombre, cuenta, clave)
 VALUES(gen_random_uuid(), :usuarios/correo, :usuarios/nombre, :usuarios/cuenta, DIGEST(:usuarios/clave, 'sha384'))
 RETURNING id;
 
+-- :name buscar-usuario :? :1
+-- :doc Busca usuario por cuenta y contraseña
+SELECT id, correo, nombre, cuenta
+FROM usuarios
+WHERE cuenta = :cuenta AND clave = :clave;
 
 -- Autores
 

@@ -87,6 +87,10 @@
   [state-map id] 
   (obtener-entidad-por-id state-map "usuarios" id))
 
+(defn obtener-usuario
+  [state-map correo cuenta]
+  )
+
 (defn actualizar-usuario
   [state-map campo valor id] 
   (actualizar-entidad  state-map "usuario" campo valor id))
