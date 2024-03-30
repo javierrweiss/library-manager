@@ -87,27 +87,27 @@
         (do (halt)
             (refresh)
             (start)))))
-   (reset-db) 
-  (go)      
-  (halt)   
-  (ui-edit-restart-mode)   
-  (reset)  
+  (reset-db)
+  (go)
+  (halt)
+  (ui-edit-restart-mode)
+  (reset)
   (reset-all)
-  (clear)  
+  (clear)
   (refresh)   ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)
   (:db.sql/connection state/system)
-  :dbg  
+  :dbg
   (query-fn :obtener-referencias-y-publicaciones)
   (query-fn :obtener-todo {:table "usuarios"})
- 
+
   (def kywd (byte-array [58, 22, -87, 57, 102, -70, 117, 58, -42, -25, -117, 110, 77, -106, 52, -45, 64, 19, 93, 40, -99, 75, -117, 97, -12,
-                         107, 105, -62, 23, 39, -51, -19, 74, -35, -25, -74, 40, 28, -25, -128, 17, 44, 32, -2, 13, 8, 32, -30])) 
+                         107, 105, -62, 23, 39, -51, -19, 74, -35, -25, -74, 40, 28, -25, -128, 17, 44, 32, -2, 13, 8, 32, -30]))
   (bytes? kywd)
-  
- (query-fn :buscar-usuario {:usuarios/cuenta "nannana"
-                            :usuarios/clave kywd})    
-                  
+
+  (query-fn :buscar-usuario {:usuarios/cuenta "nannana"
+                             :usuarios/clave kywd})
+
   ;;Crear las tablas en el orden correcto y sin que que solape el timestamp
   (doseq [tabla ["usuarios-table"
                  "autores-table"

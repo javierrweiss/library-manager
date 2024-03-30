@@ -38,7 +38,7 @@
      [:button.flex.font-semibold.p-6.bg-rebecca-purple 
       {:style "width: 18%; height: 2.5%; border-radius: 0.375rem; text-align: center"
        :type "button"
-       :hx-get "login"
+       :hx-get "/usuario/login"
        :hx-target "#hero"
        :hx-swap "outerHTML"}
       "Ingresa"]]]])
@@ -52,10 +52,36 @@
     (body req)
     (footer req)]])
 
-(defn ui-routes
+(defn home-routes
   [base-path]
   (simpleui/make-routes
    base-path
    (fn [req]
      (page-htmx
       (home req)))))
+ 
+(comment
+  
+  (page-htmx (login { }"" ""))
+  
+  (page-htmx (registro_usuario {:params {:cuenta ""
+                                         :clave ""
+                                         :nombre ""
+                                         :correo ""}}))
+  
+(simpleui/make-routes
+ "/usuario"
+ (fn [req]
+   (page-htmx
+    (home req)))) 
+(into [] (concat (simpleui/make-routes
+                  ""
+                  (fn [req]
+                    (page-htmx
+                     (home req))))
+                 (simpleui/make-routes
+                  "/ingreso"
+                  (fn [req]
+                    (login req "" "")))))
+  
+  )

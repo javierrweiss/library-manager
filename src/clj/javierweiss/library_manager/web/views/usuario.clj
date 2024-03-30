@@ -1,6 +1,6 @@
 (ns javierweiss.library-manager.web.views.usuario
   (:require
-   [simpleui.core :as simpleui :refer [defcomponent]] 
+   [simpleui.core :as simpleui :refer [defcomponent make-routes]] 
    [clojure.tools.logging :as log]
    [javierweiss.library-manager.db.db :as db]
    [javierweiss.library-manager.web.routes.utils :as utils]))
@@ -69,8 +69,12 @@
 
   :dbg
 
-(ui-routes "/")
+  (ui-routes "/")
   
+  (require '[javierweiss.library-manager.web.htmx :refer [page-htmx]])
+
+  (page-htmx (formulario_usuario {} "" "" " " ""))
+
   (let [req {}]
     (page-htmx
      (titulo req)

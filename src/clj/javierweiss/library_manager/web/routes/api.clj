@@ -27,6 +27,10 @@
                                   :correo string?
                                   :clave string?}}
             :handler usuario/crear-usuario}}]
+   ["/usuario_login"
+    {:post {:parameters {:params {:cuenta string?
+                                  :clave bytes?}}
+            :handler usuario/obtener-usuario}}]
    ["/usuario/:id" {:get {:parameters {:query {:id string?}}
                           :handler usuario/obtener-usuario-por-id}}]
    ["/usuario/del/"
@@ -45,11 +49,7 @@
                                 :usuario_clave string?}}
            :handler usuario/actualizar-clave-usuario}}]
    ["/usuario/todos/"
-    {:get usuario/obtener-todos-usuarios}]
-   ["/login"  
-    {:post {:parameters {:params {:cuenta string?
-                                  :clave bytes?}}
-            :handler usuario/obtener-usuario}}]])
+    {:get usuario/obtener-todos-usuarios}]])
 
 (defn version1-api
   "Recibe uno o más vectores de vectores representando rutas y las hace preceder del path v1"
@@ -59,7 +59,6 @@
 ;; Routes
 (def api-routes (conj default-routes (version1-api usuario-routes)))
 
- 
 (def route-data {:coercion   malli/coercion
                  :muuntaja   formats/instance
                  :swagger    {:id ::api}

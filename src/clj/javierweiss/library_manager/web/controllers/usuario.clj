@@ -15,12 +15,13 @@
 (defn crear-usuario
   [{{:keys [registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo registro_usuario_clave]} :params :as req}] 
   (log/debug "Estos son los params " (:params req)) 
-  (let [q (utils/route-data req)]
+  (let [q (utils/route-data req)
+        clave (.getBytes registro_usuario_clave)]
     (try
       (log/debug "Creando usuario con los parámetros " registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo)
       (if (some string/blank? [registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo registro_usuario_clave])
          (-> (http-response/bad-request (htmx/page-htmx (u/registro_no_exitoso "Debe completar todos los campos"))) :body) ;; Delegar validación al formulario
-        (let [resp (db/crear-usuario q registro_usuario_nombre registro_usuario_correo registro_usuario_cuenta registro_usuario_clave)
+        (let [resp (db/crear-usuario q registro_usuario_nombre registro_usuario_correo registro_usuario_cuenta clave)
               id (if-not (uuid? resp)
                    (-> resp
                        first
