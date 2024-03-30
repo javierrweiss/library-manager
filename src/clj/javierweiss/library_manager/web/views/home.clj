@@ -31,7 +31,7 @@
      [:button.flex.font-semibold.p-6.bg-rebecca-purple 
       {:style "width: 18%; height: 2.5%; border-radius: 0.375rem"
        :type "button"
-       :hx-get "registro_usuario"
+       :hx-get "/usuario/registro"
        :hx-target "#hero"
        :hx-swap "outerHTML"}
       "Regístrate"]

@@ -5,6 +5,7 @@
    [javierweiss.library-manager.web.middleware.formats :as formats]
    [javierweiss.library-manager.web.views.home :refer [home-routes]]
    [javierweiss.library-manager.web.views.login :refer [login-route]]
+   [javierweiss.library-manager.web.views.usuario :refer [usuario-route]]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.parameters :as parameters]))
 
@@ -28,4 +29,4 @@
   [_ {:keys [base-path]
       :or   {base-path ""}
       :as   opts}]
-  [base-path (route-data opts) (home-routes base-path) (login-route)])
+  [base-path (route-data opts) (home-routes base-path) (login-route) (usuario-route)])
