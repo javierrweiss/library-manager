@@ -14,8 +14,9 @@
 
 (defn crear-doc-usuario!
   [nombre correo cuenta clave]
-  {:pre [(spec/valid? (spec/* string?) [nombre cuenta clave])
-         (spec/valid? :schema/correo correo)]}
+  {:pre [(spec/valid? (spec/* string?) [nombre cuenta])
+         (spec/valid? :schema/correo correo)
+         (bytes? clave)]}
   {:xt/id (java.util.UUID/randomUUID)
    :usuario/nombre nombre
    :usuario/correo correo
@@ -99,7 +100,8 @@
   (crear-doc-colecciones! "Colección de Perros" (vector #uuid "f33fef14-66be-4890-b158-4321fd7615f5" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID)))
   (crear-doc-colecciones! "Coleccion XXX")
   (crear-doc-colecciones! "Colección de Perros" (list #uuid "f33fef14-66be-4890-b158-4321fd7615f5" (java.util.UUID/randomUUID) (java.util.UUID/randomUUID)))
-
+  (crear-doc-usuario! "Juan Marchena" "javier.swe@gmail.coom" "hands" " es ta es muc vala") ;; falla aserción
+  (crear-doc-usuario! "Juan Marchena" "javier.swe@gmail.coom" "hands" (.getBytes  " es ta es muc vala"))
   (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid? :into [])) (java.util.UUID/randomUUID))
 
   (spec/valid? (spec/or :a nil? :b uuid? :c (spec/coll-of uuid? :into [])) [(java.util.UUID/randomUUID) (java.util.UUID/randomUUID)])

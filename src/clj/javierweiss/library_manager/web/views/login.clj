@@ -4,7 +4,7 @@
 
 (defcomponent ^:endpoint login [req ^:path cuenta ^:path clave]
   [:div#login
-   [:form {:hx-post "/api/v1/login"}
+   [:form {:hx-post "/api/v1/usuario_login"}
     [:input {:type "text"
              :required true
              :maxlength "40"

@@ -73,6 +73,7 @@
 (add-tap #'p/submit)
 
 (comment
+  
   (p/close)
   (let [prep-fn (test-prep!)]
     (prep-fn))
@@ -88,13 +89,13 @@
             (refresh)
             (start)))))
   (reset-db)
-  (go)
+  (go)  
   (halt)
   (ui-edit-restart-mode)
   (reset)
   (reset-all)
   (clear)
-  (refresh)   ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
+  (refresh)    ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
   (ns-unmap 'user 'start-app)
   (:db.sql/connection state/system)
   :dbg
@@ -197,7 +198,7 @@
 
   (consulta :obtener-colecciones-por-usuario {:bibliotecas/usuario #uuid "22c4d71b-42f1-46d7-8dfd-66ca4e0ce28b"
                                               :bibliotecas/id #uuid "1ff6d88e-0c1c-4b0f-873a-446717d7fbc9"}) ;;revisar
-
+  
   (consulta :obtener-todo {:table "colecciones"})
 
   (consulta :obtener-todo {:table "coleccion_items"})
@@ -205,9 +206,9 @@
   (consulta :obtener-todo {:table "bibliotecas"})
 
   (consulta :obtener-referencias-por-coleccion {:colecciones/nombre_coll "Buenas lecturas"}) ;;revisar
-
+  
   (consulta :obtener-citas-por-referencia-id {:citas/referencia #uuid "966e1a6a-b667-4fb2-bd8b-56372ff99809"}) ;; revisar
-
+  
   :bibliotecas/colecciones #uuid "20a13609-669c-4179-9429-f54f1a571b06"
 
   (consulta :obtener-todo {:table "citas"})

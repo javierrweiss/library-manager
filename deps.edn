@@ -1,45 +1,50 @@
-{:paths   ["src/clj" 
+{:paths   ["src/clj"
            "resources"]
 
  :deps    {org.clojure/clojure {:mvn/version "1.11.1"}
 
            ;; Routing
- metosin/reitit {:mvn/version "0.7.0-alpha7"}
+           metosin/reitit {:mvn/version "0.7.0-alpha7"}
 
            ;; Ring
- metosin/ring-http-response {:mvn/version "0.9.3"}
- ring/ring-core {:mvn/version "1.11.0"}
- ring/ring-defaults {:mvn/version "0.4.0"}
+           metosin/ring-http-response {:mvn/version "0.9.3"}
+           ring/ring-core {:mvn/version "1.11.0"}
+           ring/ring-defaults {:mvn/version "0.4.0"}
 
            ;; Logging
- ch.qos.logback/logback-classic {:mvn/version "1.4.4"}
+           ch.qos.logback/logback-classic {:mvn/version "1.4.4"}
 
            ;; Data coercion
- luminus-transit/luminus-transit {:mvn/version "0.1.5"
-                                  :exclusions [com.cognitect/transit-clj]}
- metosin/muuntaja {:mvn/version "0.6.8"}
+           luminus-transit/luminus-transit {:mvn/version "0.1.5"
+                                            :exclusions [com.cognitect/transit-clj]}
+           metosin/muuntaja {:mvn/version "0.6.8"}
 
            ;; kit Libs
- io.github.kit-clj/kit-core {:mvn/version "1.0.6"}
- io.github.kit-clj/kit-undertow {:mvn/version "1.0.4"}
- io.github.kit-clj/kit-xtdb {:mvn/version "1.0.3"}
- io.github.kit-clj/kit-postgres {:mvn/version "1.0.2"}
- io.github.kit-clj/kit-sql-conman {:mvn/version "1.10.1"}
- io.github.kit-clj/kit-sql-migratus {:mvn/version "1.0.4"}
- io.github.kit-clj/kit-hato {:mvn/version "1.0.2"}
- io.github.kit-clj/kit-quartz {:mvn/version "1.0.3"}
- io.github.kit-clj/kit-redis {:mvn/version "1.0.3"}
- io.github.kit-clj/kit-selmer {:mvn/version "1.0.3"}
- io.github.kit-clj/kit-metrics {:mvn/version "1.0.3"}
- io.github.kit-clj/kit-repl {:mvn/version "1.0.2"}
- ctmx/ctmx {:git/url "https://github.com/whamtet/ctmx",
-            :git/sha "8dc4d32e742baccea4bd8cbd017f4eff80aa51aa"}
- simpleui/simpleui {:git/url "https://github.com/whamtet/simpleui",
-                    :git/sha "a107d7a8a69755dae6cd9954992614a86504c257"}
+           io.github.kit-clj/kit-core {:mvn/version "1.0.6"}
+           io.github.kit-clj/kit-undertow {:mvn/version "1.0.4"}
+           io.github.kit-clj/kit-xtdb {:mvn/version "1.0.3"}
+           io.github.kit-clj/kit-postgres {:mvn/version "1.0.2"}
+           io.github.kit-clj/kit-sql-conman {:mvn/version "1.10.1"}
+           io.github.kit-clj/kit-sql-migratus {:mvn/version "1.0.4"}
+           io.github.kit-clj/kit-hato {:mvn/version "1.0.2"}
+           io.github.kit-clj/kit-quartz {:mvn/version "1.0.3"}
+           io.github.kit-clj/kit-redis {:mvn/version "1.0.3"}
+           io.github.kit-clj/kit-selmer {:mvn/version "1.0.3"}
+           io.github.kit-clj/kit-metrics {:mvn/version "1.0.3"}
+           io.github.kit-clj/kit-repl {:mvn/version "1.0.2"}
+           ctmx/ctmx {:git/url "https://github.com/whamtet/ctmx",
+                      :git/sha "8dc4d32e742baccea4bd8cbd017f4eff80aa51aa"}
+           simpleui/simpleui {:git/url "https://github.com/whamtet/simpleui",
+                              :git/sha "a107d7a8a69755dae6cd9954992614a86504c257"}
+
+ ;; Serialization
+           com.taoensso/nippy {:mvn/version "3.4.0-RC2"}
+
  ;; Security
- buddy/buddy-auth {:mvn/version "3.0.323"}
- org.springframework.security/spring-security-crypto {:mvn/version "6.2.3"}}
- com.taoensso/tempel {:mvn/version "1.0.0-RC1"}
+           buddy/buddy-auth {:mvn/version "3.0.323"}
+           org.springframework.security/spring-security-crypto {:mvn/version "6.2.3"}
+           com.taoensso/tempel {:mvn/version "1.0.0-RC1"}
+           com.lambdaworks/scrypt {:mvn/version "1.4.0"}}
  :aliases {:build {:deps {io.github.clojure/tools.build {:git/sha "e3e3532"
                                                          :git/tag "v0.8.0" :git/url "https://github.com/clojure/tools.build.git"}}
                    :ns-default build}
@@ -88,5 +93,4 @@
                   :exec-fn      cognitect.test-runner.api/test
                   :extra-paths ["env/dev/clj" "env/dev/resources" "env/test/resources" "test/clj"]
                   :main-opts   ["-e" "(require 'pjstadig.humane-test-output) (pjstadig.humane-test-output/activate!)"
-                                "-m" "cognitect.test-runner"]}}
- }
+                                "-m" "cognitect.test-runner"]}}}
