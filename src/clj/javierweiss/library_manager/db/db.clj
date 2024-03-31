@@ -26,6 +26,10 @@
  [state-map _ entidad]
  (datalog.queries/obtener-todas-las-entidades (:query-fn state-map) entidad))
 
+(defmethod obtener-entidades :default
+   [_ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
+
 (defmulti obtener-entidad-por-id (fn [state-map _ _] (:db-type state-map)))
 
 (defmethod obtener-entidad-por-id :sql
@@ -36,6 +40,10 @@
 (defmethod obtener-entidad-por-id :xtdb
   [state-map _ id]
   (datalog.queries/obtener-por-id (:query-fn state-map) id))
+
+(defmethod obtener-entidad-por-id :default
+  [_ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 (defmulti actualizar-entidad (fn [state-map _ _ _ _] (:db-type state-map)))
 
@@ -53,6 +61,10 @@
         campo (keyword t c)]
     (datalog.queries/actualizar-entidad (:query-fn state-map) id campo valor)))
 
+(defmethod actualizar-entidad :default
+  [_ _ _ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
+
 (defmulti borrar-entidad (fn [state-map _ _] (:db-type state-map)))
 
 (defmethod borrar-entidad :sql
@@ -63,6 +75,10 @@
 (defmethod borrar-entidad :xtdb
  [state-map _ id]
  (datalog.queries/borrar-por-id (:query-fn state-map) id))
+
+(defmethod borrar-entidad :default
+  [_ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 ;; USUARIOS ;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -78,6 +94,10 @@
 (defmethod crear-usuario :xtdb
  [state-map nombre correo cuenta clave]
  (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-usuario! nombre correo cuenta clave)))
+
+(defmethod crear-usuario :default
+  [_ _ _ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 (defn obtener-usuarios
   [state-map] 
@@ -101,6 +121,10 @@
   {:pre [(bytes? clave)]}
   (datalog.queries/obtener-usuario-por-cuenta (:query-fn state-map) cuenta clave))
 
+(defmethod obtener-usuario :default
+  [_ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
+
 (defn actualizar-usuario
   [state-map campo valor id] 
   (actualizar-entidad  state-map "usuario" campo valor id))
@@ -122,6 +146,10 @@
 (defmethod crear-autor :xtdb
   [state-map nombres apellidos]
   (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-autor! nombres apellidos)))
+
+(defmethod crear-autor :default
+  [_ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 (defn obtener-autores
   [state-map] 
@@ -198,6 +226,10 @@
    (:query-fn state-map)
    (datalog.documents/crear-doc-referencia! tipo_publicacion titulo ano editorial ciudad volumen nombre_revista nombre_libro autores)))
 
+(defmethod crear-referencia :default
+  [_ _ _ _ _ _ _ _ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
+
 (defn obtener-referencias
   [state-map] 
   (obtener-entidades state-map "referencias" :referencia/titulo))
@@ -225,6 +257,10 @@
  [state-map campo valor id]
  (datalog.queries/actualizar-entidad (:query-fn state-map) id campo valor))
 
+(defmethod actualizar-referencia :default
+  [_ _ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
+
 (defn borrar-referencia
   [state-map id] 
   (borrar-entidad state-map "referencias" id))
@@ -242,6 +278,10 @@
 (defmethod crear-cita :xtdb
  [state-map referencia cita paginas usuario]
  (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-citas! referencia cita paginas usuario)))
+
+(defmethod crear-cita :default
+  [_ _ _ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 (defn obtener-citas
   [state-map] 
@@ -275,6 +315,10 @@
 (defmethod crear-comentario :xtdb
   [state-map comentario paginas palabras_clave referencia usuario]
   (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-comentarios! referencia comentario paginas palabras_clave usuario)))
+
+(defmethod crear-comentario :default
+  [_ _ _ _ _ _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 (defn obtener-comentarios
   [state-map] 
@@ -340,6 +384,10 @@
 (defmethod crear-coleccion :xtdb
  [state-map nombre_coll & referencias]
  (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-colecciones! nombre_coll referencias)))
+
+(defmethod crear-coleccion :default
+  [_ _ & _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 (defn obtener-colecciones
   [state-map] 
@@ -408,6 +456,10 @@
 (defmethod crear-biblioteca :xtdb
  [state-map usuario nombre_biblioteca & colecciones]
  (datalog.queries/agregar-doc (:query-fn state-map) (datalog.documents/crear-doc-bibliotecas! usuario nombre_biblioteca colecciones)))
+
+(defmethod crear-biblioteca :default
+  [_ _ _ & _]
+  (throw (IllegalArgumentException. "Opción no implementada. Atomo del sistema nulo, posiblemente no arrancado")))
 
 (defn obtener-bibliotecas
   [state-map] 
