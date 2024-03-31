@@ -17,6 +17,12 @@ SELECT id, correo, nombre, cuenta
 FROM usuarios
 WHERE cuenta = :usuarios/cuenta AND clave = :usuarios/clave;
 
+-- :name buscar-usuario-por-cuenta-y-mail :? :1
+-- :doc Busca usuario por cuenta y mail
+SELECT id, correo, nombre, cuenta
+FROM usuarios
+WHERE cuenta = :usuarios/cuenta AND correo = :usuarios/correo;
+
 -- Autores
 
 -- :name crear-autor! :<!

@@ -29,7 +29,8 @@
             :handler usuario/crear-usuario}}]
    ["/usuario_login"
     {:post {:parameters {:params {:cuenta string?
-                                  :clave bytes?}}
+                                  :contrasena string?
+                                  :correo string?}}
             :handler usuario/obtener-usuario}}]
    ["/usuario/:id" {:get {:parameters {:query {:id string?}}
                           :handler usuario/obtener-usuario-por-id}}]

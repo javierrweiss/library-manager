@@ -4,7 +4,7 @@
             [javierweiss.library-manager.config :refer [custom-config]]
             #_[javierweiss.library-manager.core :refer [system]]
             [integrant.repl.state :as state]))
-
+ 
 (def dbtype (:db/type state/system #_system))
 
 (def state-map
@@ -16,29 +16,31 @@
 
 ;;Devuelve id de administrador
 (defonce usuario_admin
-  (db/crear-usuario state-map
-                    "Administrador"
-                    (-> custom-config :credentials :mail)
-                    "Admin"
-                    (tempel/keychain-encrypt (tempel/keychain)
-                                             {:pbkdf-nwf :ref-2000-msecs
-                                              :password  (-> custom-config :credentials :key)})))
+  (when (:query-fn state-map)
+    (db/crear-usuario state-map
+                      "Administrador"
+                      (-> custom-config :credentials :mail)
+                      "Admin"
+                      (tempel/keychain-encrypt (tempel/keychain)
+                                               {:pbkdf-nwf :ref-2000-msecs
+                                                :password  (-> custom-config :credentials :key)}))))
 
 (defonce admin-public-key
-  (if (= dbtype :xtdb)
-    (->> usuario_admin
-         (db/obtener-usuario-por-id state-map)
-         ffirst 
-         :usuario/clave 
-         tempel/public-data 
-         :keychain)
-    (->> usuario_admin
-         first
-         :id
-         (db/obtener-usuario-por-id state-map)
-         :clave
-         tempel/public-data
-         :keychain)))
+  (when usuario_admin
+    (if (= dbtype :xtdb)
+      (->> usuario_admin
+           (db/obtener-usuario-por-id state-map)
+           ffirst 
+           :usuario/clave 
+           tempel/public-data 
+           :keychain)
+      (->> usuario_admin
+           first
+           :id
+           (db/obtener-usuario-por-id state-map)
+           :clave
+           tempel/public-data
+           :keychain))))
  
 (comment
 

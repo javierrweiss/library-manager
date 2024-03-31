@@ -111,6 +111,15 @@
             :where [[?ent :usuario/cuenta cuenta]
                     [?ent :usuario/clave clave]]} 
      [cuenta clave]))
+
+(defn obtener-usuario-por-cuenta-y-correo
+  "Recupera entidad(es) por campos seleccionados"
+  [nodo cuenta correo]
+  (q nodo '{:find [(pull ?ent [*])]
+            :in [[cuenta clave]]
+            :where [[?ent :usuario/cuenta cuenta]
+                    [?ent :usuario/correo correo]]}
+     [cuenta correo]))
  
 (defn obtener-todas-referencias
   "Muestra todas las entidades del mapa de entidades de tipo referencia"
@@ -312,6 +321,7 @@
   (obtener-todos-usuarios node)
 
   (obtener-usuario-por-cuenta node "juanmago" "98343hdjnsdds")
+
   
   (q node '{:find [(pull ?entidad [*])]
             :where [[?entidad :usuario/nombre "Lionel Messi"]]})

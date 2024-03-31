@@ -68,12 +68,12 @@
   (migratus.core/migrate (:db.sql/migrations state/system)))
  
 (def query-fn (:db.sql/query-fn state/system))
-  
+   
 (def p (p/open {:launcher :vs-code}))
 (add-tap #'p/submit)
 
 (comment
-  
+  (migrate)
   (p/close)
   (let [prep-fn (test-prep!)]
     (prep-fn))
@@ -88,11 +88,11 @@
         (do (halt)
             (refresh)
             (start)))))
-  (reset-db)
+  (reset-db) 
   (go)  
-  (halt)
+  (halt) 
   (ui-edit-restart-mode)
-  (reset)
+  (reset) 
   (reset-all)
   (clear)
   (refresh)    ;;Hay que refrescar para que escanee los archivos fuente de nuevo.
@@ -108,6 +108,9 @@
 
   (query-fn :buscar-usuario {:usuarios/cuenta "nannana"
                              :usuarios/clave kywd})
+   
+  (query-fn :buscar-usuario-por-cuenta-y-mail {:usuarios/cuenta "Admin"
+                                               :usuarios/correo "javierweiss@gmail.com"})
 
   ;;Crear las tablas en el orden correcto y sin que que solape el timestamp
   (doseq [tabla ["usuarios-table"

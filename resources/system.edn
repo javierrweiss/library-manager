@@ -95,14 +95,14 @@
 
  ;; Esto es algo que conviene controlarlo desde el archivo de configuración, en vez de desde el código. 
 
- :db/type :xtdb ;; cambiar a :sql para SQL
+ :db/type :sql #_:xtdb ;; cambiar a :sql para SQL
 
  :reitit.routes/api
  {:base-path "/api"
   :env #ig/ref :system/env
   :metrics #ig/ref :metrics/prometheus
   :db-type #ig/ref :db/type
-  :query-fn #ig/ref :db.xtdb/node} ;; cambiar a :db.sql/query-fn para SQL                               
+  :query-fn #ig/ref :db.sql/query-fn #_:db.xtdb/node} ;; cambiar a :db.sql/query-fn para SQL                               
 
  :router/routes
  {:routes #ig/refset :reitit/routes}

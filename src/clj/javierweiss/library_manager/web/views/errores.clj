@@ -24,4 +24,16 @@
 
 (defcomponent ^:endpoint prohibido [_]
   [:div#forbidden
-   [:h2 "¡Lo sentimos! ¡El acceso se encuentra restringido"]])
+   [:h2 "¡Lo sentimos! ¡El acceso se encuentra restringido!"]])
+
+(defcomponent ^:endpoint login_intento_fallido [_]
+  [:div#failed
+   [:h2 "¡Lo sentimos! Contraseña o usuario incorrecto. Intente de nuevo."]])
+
+(defcomponent ^:endpoint usuario_inexistente [_]
+  [:div#usuario_inexistente
+   [:h2 "¡Lo sentimos! No existe un usuario registrado con esos datos"]])
+
+(defcomponent ^:endpoint login_unsuccessful [_]
+  [:div#forbidden_login
+   [:h2 "¡Lo sentimos! ¡Ha superado la cantidad de intentos permitidos!"]])

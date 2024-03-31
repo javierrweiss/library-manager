@@ -111,15 +111,13 @@
 (defmulti obtener-usuario (fn [state-map _ _ ] (:db-type state-map)))
 
 (defmethod obtener-usuario :sql
-  [state-map cuenta clave] 
-  {:pre [(bytes? clave)]}
-  ((:query-fn state-map) :buscar-usuario {:usuarios/cuenta cuenta
-                                          :usuarios/clave clave}))
+  [state-map cuenta correo] 
+  ((:query-fn state-map) :buscar-usuario-por-cuenta-y-mail {:usuarios/cuenta cuenta
+                                                            :usuarios/correo correo}))
 
 (defmethod obtener-usuario :xtdb
-  [state-map cuenta clave]
-  {:pre [(bytes? clave)]}
-  (datalog.queries/obtener-usuario-por-cuenta (:query-fn state-map) cuenta clave))
+  [state-map cuenta correo] 
+  (datalog.queries/obtener-usuario-por-cuenta-y-correo (:query-fn state-map) cuenta correo))
 
 (defmethod obtener-usuario :default
   [_ _ _]

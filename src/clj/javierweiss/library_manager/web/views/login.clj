@@ -2,21 +2,30 @@
   (:require [simpleui.core :as simpleui :refer [defcomponent make-routes]]
             [javierweiss.library-manager.web.htmx :refer [page-htmx]]))
 
-(defcomponent ^:endpoint login [req ^:path cuenta ^:path clave]
+(defcomponent ^:endpoint login [req ^:path cuenta ^:path contrasena ^:path correo]
   [:div#login
    [:form {:hx-post "/api/v1/usuario_login"}
+    [:label {:for "cuenta"} "Cuenta"]
     [:input {:type "text"
              :required true
              :maxlength "40"
              :value cuenta
              :name (path cuenta)}]
+    [:label {:for "correo"} "Correo electrónico"]
+    [:input {:type "email"
+             :required true 
+             :value correo 
+             :name (path correo)}]
+    [:label {:for "contrasena"} "Contraseña"]
     [:input {:type "password"
              :required true
              :maxlength "100"
-             :value clave 
-             :name (path clave)}]
-    [:button {:type "submit"
-              :value "Ingresar"}]]])
+             :value contrasena
+             :name (path contrasena)}]
+    [:button.flex.font-semibold.p-6.bg-rebecca-purple
+     {:style "width: 18%; height: 2.5%; border-radius: 0.375rem; text-align: center"
+      :type "submit"}
+     "Ingresar"]]])
 
 (defn login-route
   []
@@ -24,7 +33,7 @@
    "/usuario/login"
    (fn [req]
      (page-htmx
-      (login req "" "")))))
+      (login req "" "" "")))))
 
 ;; El hasheo y conversión a string de las claves debería ocurrir enteramente en el cliente, para que no viaje ninguna clave decodificada por la red
 

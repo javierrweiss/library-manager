@@ -6,11 +6,13 @@
    [javierweiss.library-manager.web.views.errores :as err]
    [javierweiss.library-manager.web.views.exito :refer [exito]]
    [javierweiss.library-manager.web.routes.utils :as utils]
+   [javierweiss.library-manager.web.security.loginsystem :refer [logear-usuario]]
    [ring.util.http-response :as http-response]
    [javierweiss.library-manager.web.views.usuario :as u]
    [javierweiss.library-manager.web.htmx :as htmx]
    [clojure.string :as string]
-   [integrant.repl.state :as state]))
+   [integrant.repl.state :as state] 
+   [xtdb.api :as xtdb]))
 
 (defn crear-usuario
   [{{:keys [registro_usuario_nombre registro_usuario_cuenta registro_usuario_correo registro_usuario_clave]} :params :as req}] 
@@ -83,17 +85,22 @@
       (catch Exception e 
         (exception/handler (:body (htmx/page-htmx (err/error req (str "No se pudo recuperar la información del usuario")))) "Error al recuperar usuario" 500 e req)))))
 
-(defn obtener-usuario 
-  [{{:keys [cuenta clave]} :params :as req}]
+(defn obtener-usuario
+  [{{:keys [cuenta correo contrasena]} :params :as req}]
   (log/debug "Estos son los params " (:params req))
-  (let [q (utils/route-data req)]
+  (let [q (utils/route-data req)
+        {:keys [id clave] :as usr} (some-> (db/obtener-usuario q cuenta correo) utils/traverse-db-result utils/obtener-datos-usuario)]
     (try
-      (-> (db/obtener-usuario q cuenta (.getBytes clave))
-          (htmx/page-htmx (u/muestra_usuario))
-          (http-response/ok)
-          :body)
+      (if usr
+        (let [resp (logear-usuario id clave contrasena)]
+          (if (bytes? resp)
+            (-> (assoc req :user-credentials resp)
+                (htmx/page-htmx (u/muestra_usuario))
+                :body)
+            resp))
+        (:body (htmx/page-htmx (err/usuario_inexistente req))))
       (catch Exception e
-        (exception/handler (:body (htmx/page-htmx (err/error req (str "No se pudo recuperar la información del usuario")))) "Error al recuperar usuario" 500 e req)))))
+        (exception/handler (:body (htmx/page-htmx (err/login_unsuccessful req))) "Login no exitoso" 403 e req)))))
 
 (defn obtener-todos-usuarios
   [req] 
@@ -108,9 +115,29 @@
 (comment  
   
   :dbg   
+
+  ;  :params {:login_ ["Bermejo" "javierweiss@gmail.com" "123456"]} Así llegan los params en el request
   
   (http-response/bad-request (htmx/page-htmx (u/registro_exitoso {:status 200 :headers "" :body ""})))
 
-  (db/crear-usuario (second ((:reitit.routes/api state/system))) "Juan Mora" "juanmora@gmail.com" "juanmora" "dssdr333")
-   
+  (db/crear-usuario (second ((:reitit.routes/api state/system))) "Juan Mora" "juanmora@gmail.com" "juanmora" (.getBytes "dssdr333"))
+
+  (def u (db/obtener-usuario (second ((:reitit.routes/api state/system))) "Admin" "javierweiss@gmail.com"))
+ 
+  (seq (db/obtener-usuario (second ((:reitit.routes/api state/system))) "Admin" "kiow@gmail.com"))
+  
+  (defn traverse 
+    [ds]
+    (loop [ds (if (set? ds) (seq ds) ds)]
+      (if (or (map? ds) (not (coll? ds)))
+        ds
+        (recur (first ds)))))
+  
+  (let [xtdb {:db-type :xtdb :query-fn (:db.xtdb/node state/system)}
+        sql {:db-type :sql :query-fn (:db.sql/query-fn state/system)} 
+        #_usr #_(utils/traverse-db-result (db/obtener-usuario xtdb "Admin" "javierweiss@gmail.com"))]
+    (some-> (db/obtener-usuario sql "Bermejo" "javierweiss@gmail.com") utils/traverse-db-result utils/obtener-datos-usuario)
+    #_(utils/obtener-datos-usuario usr)) 
+  
+  ;; Creo que fue una pésima idea lo de implementar soporte para ambas bases de datos...
   )

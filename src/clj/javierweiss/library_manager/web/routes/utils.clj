@@ -1,4 +1,5 @@
 (ns javierweiss.library-manager.web.routes.utils
+  (:require [clojure.set :refer [rename-keys]])
   (:import (org.springframework.security.crypto.argon2 Argon2PasswordEncoder)))
 
 (def route-data-path [:reitit.core/match :data :routes])
@@ -21,7 +22,23 @@
   [str] 
   (.encode encoder str))
 
- 
+ (defn traverse-db-result
+   "Traverses a nested data structure and returns first non-sequential element."
+   [ds]
+   (loop [ds (if (set? ds) (seq ds) ds)]
+     (if (or (map? ds) (not (coll? ds)))
+       ds
+       (recur (first ds)))))
+
+(defn obtener-datos-usuario
+  [usuario]
+  (if (every? #{:id :correo :nombre :cuenta} (keys usuario))
+    usuario
+    (rename-keys usuario {:xt/id :id 
+                          :usuario/nombre :nombre 
+                          :usuario/correo :correo 
+                          :usuario/clave :clave
+                          :usuario/cuenta :cuenta})))
 
 (comment 
   
